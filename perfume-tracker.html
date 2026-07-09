@@ -11,12 +11,15 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#faf7fb;--card:#fff;--accent:#8e4585;--accent-light:#f3e6f1;--sand:#e9dcea;--text:#2c2530;--muted:#7a6b7e;--border:#e2d5e4;
+:root{--bg:#faf7fb;--card:#fff;--accent:#7f4a72;--accent-light:#f3e7f0;--sand:#e7dbe6;--text:#2c2530;--muted:#7a6b7e;--border:#e2d5e4;
 --owned:#2b8a3e;--owned-bg:#eaf7ed;--sampled:#1d6f8c;--sampled-bg:#e0f1f5;--finished:#9a6f20;--finished-bg:#faf0d7;--sold:#8a4a4a;--sold-bg:#f7e8e8;--to_try:#5f3dc4;--to_try-bg:#ece7fb;--star:#e6a817;--star-empty:#ddd4de}
-:root[data-theme="amber"]{--bg:#fdf8ed;--accent:#b45309;--accent-light:#fcefd6;--sand:#f2e1bd;--muted:#82725a;--border:#ecdcbd}
-:root[data-theme="rose"]{--bg:#fdf5f7;--accent:#c2255c;--accent-light:#fbe4ec;--sand:#f3d9e2;--muted:#87707a;--border:#eed4dd}
-:root[data-theme="ocean"]{--bg:#f2f8fa;--accent:#1d7a8c;--accent-light:#e0f1f5;--sand:#d7e8ed;--muted:#657e86;--border:#d2e3e8}
-:root[data-theme="green"]{--bg:#ffffff;--accent:#2b8a3e;--accent-light:#eaf7ed;--sand:#f0f4f0;--muted:#6b7570;--border:#e5e9e5}
+:root[data-theme="iso"]{--bg:#fbfbfa;--accent:#3c3c39;--accent-light:#eeeeeb;--sand:#e4e4e0;--muted:#72726d;--border:#dcdcd7}
+:root[data-theme="tuberose"]{--bg:#fdfbf1;--accent:#82680a;--accent-light:#f7efce;--sand:#eee3b8;--muted:#7b7353;--border:#e9dfba}
+:root[data-theme="hibiscus"]{--bg:#fcf7f7;--accent:#a13e5c;--accent-light:#f7e5ea;--sand:#eed7dd;--muted:#846c73;--border:#ead4da}
+:root[data-theme="tea"]{--bg:#f9faf4;--accent:#51663c;--accent-light:#eaf0dd;--sand:#dde5c9;--muted:#70745b;--border:#dee4cb}
+:root[data-theme="tobacco"]{--bg:#fbf6ee;--accent:#7d4a1f;--accent-light:#f4e7d4;--sand:#e9d8bd;--muted:#806e58;--border:#e8d9c0}
+:root[data-theme="iris"]{--bg:#f9f8fc;--accent:#635784;--accent-light:#ebe7f4;--sand:#ded8ec;--muted:#746f85;--border:#ddd7e8}
+:root[data-theme="ambergris"]{--bg:#f6f9fa;--accent:#46697b;--accent-light:#e3eef2;--sand:#d3e2e8;--muted:#62737a;--border:#d5e1e6}
 body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
 header{background:var(--accent);color:#fff;padding:1.4rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;box-shadow:0 2px 12px rgba(0,0,0,.18)}
 header h1{font-family:'DM Serif Display',Georgia,serif;font-size:2.35rem;font-weight:400;letter-spacing:.01em;line-height:1.15;text-shadow:0 1px 3px rgba(0,0,0,.18)}
@@ -190,7 +193,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
   #search-box{max-width:none;width:100%;margin-left:0}
 }
 </style>
-<script>try{const t=localStorage.getItem('pt-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+<script>try{const t=localStorage.getItem('pt-theme');const m={amber:'tobacco',rose:'hibiscus',ocean:'ambergris',green:'tea'};if(t)document.documentElement.dataset.theme=m[t]||t;}catch(e){}</script>
 </head>
 <body>
 <div id="auth-overlay">
@@ -426,12 +429,17 @@ const FLOWS = {
   sold:     [{to:'owned',   label:'↩ Back in collection'}]
 };
 const THEMES = [
-  {id:'',      name:'Plum (default)', dots:['#8e4585','#f3e6f1','#faf7fb']},
-  {id:'amber', name:'Amber',          dots:['#b45309','#fcefd6','#fdf8ed']},
-  {id:'rose',  name:'Rose',           dots:['#c2255c','#fbe4ec','#fdf5f7']},
-  {id:'ocean', name:'Ocean',          dots:['#1d7a8c','#e0f1f5','#f2f8fa']},
-  {id:'green', name:'Green',          dots:['#2b8a3e','#eaf7ed','#ffffff']}
+  {id:'',          name:'Plum (default)', dots:['#7f4a72','#f3e7f0','#faf7fb']},
+  {id:'iso',       name:'ISO Super E',    dots:['#3c3c39','#eeeeeb','#fbfbfa']},
+  {id:'tuberose',  name:'Tuberose',       dots:['#82680a','#f7efce','#fdfbf1']},
+  {id:'hibiscus',  name:'Hibiscus',       dots:['#a13e5c','#f7e5ea','#fcf7f7']},
+  {id:'tea',       name:'Tea Leaves',     dots:['#51663c','#eaf0dd','#f9faf4']},
+  {id:'tobacco',   name:'Tobacco',        dots:['#7d4a1f','#f4e7d4','#fbf6ee']},
+  {id:'iris',      name:'Iris',           dots:['#635784','#ebe7f4','#f9f8fc']},
+  {id:'ambergris', name:'Ambergris',      dots:['#46697b','#e3eef2','#f6f9fa']}
 ];
+// pre-overhaul theme ids stored in settings/localStorage
+const LEGACY_THEMES = {amber:'tobacco', rose:'hibiscus', ocean:'ambergris', green:'tea'};
 
 // ---- STATE ----
 let P = [];            // perfumes
@@ -1071,6 +1079,8 @@ function renderThemeBody(){
       <span class="theme-dots">${t.dots.map(d=>`<span style="background:${d};border:1px solid rgba(0,0,0,.08)"></span>`).join('')}</span>${t.name}</button>`).join('');
 }
 function setTheme(id){
+  id = LEGACY_THEMES[id] || id;
+  if(id && !THEMES.some(t=>t.id===id)) id = '';
   SETTINGS.theme = id;
   if(id) document.documentElement.dataset.theme = id;
   else delete document.documentElement.dataset.theme;
