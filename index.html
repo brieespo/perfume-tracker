@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Perfume Tracker</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#faf7fb;--card:#fff;--accent:#8e4585;--accent-light:#f3e6f1;--sand:#e9dcea;--text:#2c2530;--muted:#7a6b7e;--border:#e2d5e4;
+--owned:#2b8a3e;--owned-bg:#eaf7ed;--sampled:#1d6f8c;--sampled-bg:#e0f1f5;--finished:#9a6f20;--finished-bg:#faf0d7;--sold:#8a4a4a;--sold-bg:#f7e8e8;--to_try:#5f3dc4;--to_try-bg:#ece7fb;--star:#e6a817;--star-empty:#ddd4de}
+:root[data-theme="amber"]{--bg:#fdf8ed;--accent:#b45309;--accent-light:#fcefd6;--sand:#f2e1bd;--muted:#82725a;--border:#ecdcbd}
+:root[data-theme="rose"]{--bg:#fdf5f7;--accent:#c2255c;--accent-light:#fbe4ec;--sand:#f3d9e2;--muted:#87707a;--border:#eed4dd}
+:root[data-theme="ocean"]{--bg:#f2f8fa;--accent:#1d7a8c;--accent-light:#e0f1f5;--sand:#d7e8ed;--muted:#657e86;--border:#d2e3e8}
+:root[data-theme="green"]{--bg:#ffffff;--accent:#2b8a3e;--accent-light:#eaf7ed;--sand:#f0f4f0;--muted:#6b7570;--border:#e5e9e5}
+body{font-family:'DM Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);line-height:1.5}
+header{background:var(--accent);color:#fff;padding:1.4rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+header h1{font-family:'DM Serif Display',Georgia,serif;font-size:2.35rem;font-weight:400;letter-spacing:.01em;line-height:1.15;text-shadow:0 1px 3px rgba(0,0,0,.18)}
+header p{font-family:'DM Serif Display',Georgia,serif;font-style:italic;font-size:1rem;opacity:.9;letter-spacing:.02em;margin-top:.1rem}
+.btn{padding:.45rem 1.1rem;border:none;border-radius:8px;font-size:.875rem;font-weight:600;cursor:pointer;transition:opacity .15s;font-family:inherit}
+.btn:hover{opacity:.88}
+.btn-accent{background:var(--accent);color:#fff}
+.btn-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5)}
+.btn-cta{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.03));color:#fff;border:1px solid rgba(255,255,255,.4);box-shadow:0 2px 0 rgba(0,0,0,.25),0 3px 7px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.4);text-shadow:0 1px 1px rgba(0,0,0,.2);transition:transform .08s,box-shadow .08s,opacity .15s}
+.btn-cta:active{transform:translateY(2px);box-shadow:0 0 0 rgba(0,0,0,.25),0 1px 2px rgba(0,0,0,.15),inset 0 1px 2px rgba(0,0,0,.12)}
+.btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);padding:.3rem .8rem;font-size:.8rem;border-radius:5px;cursor:pointer;font-family:inherit}
+.btn-danger{background:#fbe9e7;color:#c0392b}
+#user-info{text-align:right;color:#fff}
+#user-info .ui-welcome{font-family:'DM Serif Display',Georgia,serif;font-size:1.05rem;letter-spacing:.01em}
+#user-info .ui-sub{font-size:.72rem;opacity:.85}
+#user-info .ui-sub a{color:#fff;text-decoration:underline;cursor:pointer}
+#user-info .ui-sub a:hover{opacity:.8}
+/* More dropdown */
+.more-menu{position:relative}
+.more-menu-panel{display:none;position:absolute;top:calc(100% + .5rem);right:0;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 4px 16px rgba(0,0,0,.12);min-width:190px;z-index:200;overflow:hidden}
+.more-menu-panel.open{display:block}
+.more-menu-item{display:flex;align-items:center;gap:.6rem;width:100%;padding:.65rem 1rem;font-size:.875rem;font-weight:500;color:var(--text);background:none;border:none;cursor:pointer;text-align:left;white-space:nowrap;font-family:inherit}
+.more-menu-item:hover{background:var(--accent-light)}
+.more-menu-divider{height:1px;background:var(--border);margin:.25rem 0}
+main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
+/* Empty-collection banner */
+#empty-banner{background:var(--accent-light);border:1.5px solid var(--sand);border-radius:14px;padding:1.25rem 1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+#empty-banner p{font-size:.9rem;margin:0}
+#empty-banner p span{color:var(--muted);font-size:.82rem;display:block;margin-top:.2rem}
+#empty-banner.hidden{display:none}
+/* Toolbar: tabs + search */
+.toolbar{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.4rem}
+.tab-strip{display:flex;gap:.4rem;flex-wrap:wrap}
+.tab{padding:.4rem .95rem;border-radius:999px;border:1.5px solid var(--border);background:var(--card);font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap}
+.tab .cnt{font-weight:400;opacity:.75;font-size:.78rem;margin-left:.15rem}
+.tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+.tab:hover:not(.active){border-color:var(--accent);color:var(--accent)}
+#search-box{flex:1;min-width:180px;max-width:320px;margin-left:auto;padding:.5rem .85rem;border:1.5px solid var(--border);border-radius:9px;font-size:.9rem;font-family:inherit;background:var(--card)}
+#search-box:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+/* Cards */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem}
+.pcard{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:1.05rem 1.15rem;display:flex;flex-direction:column;gap:.35rem;cursor:pointer;box-shadow:0 1px 2px rgba(44,40,37,.04),0 4px 12px rgba(44,40,37,.05);transition:transform .2s ease,box-shadow .2s ease,border-color .15s}
+.pcard:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 10px 24px rgba(44,40,37,.1)}
+.pcard-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.chip{font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:.14rem .55rem;border-radius:999px}
+.chip-owned{background:var(--owned-bg);color:var(--owned)}
+.chip-sampled{background:var(--sampled-bg);color:var(--sampled)}
+.chip-finished{background:var(--finished-bg);color:var(--finished)}
+.chip-sold{background:var(--sold-bg);color:var(--sold)}
+.chip-to_try{background:var(--to_try-bg);color:var(--to_try)}
+.stars{font-size:.85rem;letter-spacing:.05em;white-space:nowrap}
+.star{color:var(--star-empty)}
+.star.full{color:var(--star)}
+.star.half{background:linear-gradient(90deg,var(--star) 50%,var(--star-empty) 50%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+.pcard-name{font-family:'DM Serif Display',Georgia,serif;font-size:1.25rem;line-height:1.2}
+.pcard-house{font-size:.83rem;color:var(--muted);font-weight:600}
+.pcard-meta{font-size:.78rem;color:var(--muted)}
+.pcard-notes{font-size:.82rem;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pcard-thoughts{font-size:.82rem;color:var(--muted);font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pcard-actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:auto;padding-top:.5rem}
+.flow-btn{background:var(--accent-light);color:var(--accent);border:none;padding:.3rem .7rem;font-size:.76rem;border-radius:6px;font-weight:600;cursor:pointer;font-family:inherit}
+.flow-btn:hover{opacity:.85}
+.no-results{color:var(--muted);font-size:.95rem;padding:2rem 0;text-align:center}
+/* Modal */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:100;align-items:flex-start;justify-content:center;padding:2rem;overflow-y:auto}
+.modal-bg.open{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:560px;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-head{padding:1rem 1.25rem;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.75rem}
+.modal-head strong{font-family:'DM Serif Display',Georgia,serif;font-weight:400;font-size:1.15rem}
+.modal-x{background:none;border:none;cursor:pointer;font-size:1.1rem;color:var(--muted);margin-left:auto}
+.modal-body{overflow-y:auto;padding:1.1rem 1.25rem}
+.modal-foot{padding:.85rem 1.25rem;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:.6rem;flex-shrink:0;background:#fff}
+.field{margin-bottom:.85rem}
+.field label{display:block;font-size:.8rem;font-weight:600;margin-bottom:.25rem;color:var(--muted)}
+.field input,.field textarea,.field select{width:100%;padding:.55rem .75rem;border:1.5px solid var(--border);border-radius:9px;font-size:.9rem;font-family:inherit;background:#fff;color:var(--text)}
+.field input:focus,.field textarea:focus,.field select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.field textarea{resize:vertical;min-height:60px}
+.field-row{display:flex;gap:.75rem}
+.field-row .field{flex:1}
+/* Half-star picker */
+.star-picker{display:flex;align-items:center;gap:.5rem}
+.pick-star{position:relative;font-size:1.6rem;cursor:pointer;line-height:1;user-select:none}
+.pick-star .z{position:absolute;top:0;bottom:0;width:50%}
+.pick-star .z.l{left:0}
+.pick-star .z.r{right:0}
+.rating-label{font-size:.85rem;color:var(--muted);min-width:3.2rem}
+.rating-clear{font-size:.78rem;color:var(--accent);cursor:pointer;text-decoration:underline}
+/* Theme options */
+.theme-opt{display:flex;align-items:center;gap:.7rem;width:100%;padding:.7rem .9rem;border:1.5px solid var(--border);border-radius:10px;background:#fff;cursor:pointer;font-family:inherit;font-size:.9rem;font-weight:600;color:var(--text);transition:border-color .15s,background .15s;margin-bottom:.5rem}
+.theme-opt:hover{border-color:var(--accent)}
+.theme-opt.active{border-color:var(--accent);background:var(--accent-light)}
+.theme-dots{display:flex;gap:.25rem}
+.theme-dots span{width:20px;height:20px;border-radius:50%;display:inline-block}
+/* Help */
+.help-section{margin-bottom:1.2rem}
+.help-section h3{font-size:.95rem;font-weight:700;margin-bottom:.35rem;color:var(--accent)}
+.help-section p,.help-section li{font-size:.85rem;line-height:1.6}
+.help-section ul{padding-left:1.1rem}
+/* Auth */
+#auth-overlay{position:fixed;inset:0;background:radial-gradient(circle at 50% 12%,var(--accent-light),var(--bg) 65%);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem}
+#auth-overlay.hidden{display:none}
+.auth-box{background:var(--card);border-radius:20px;padding:2.5rem 2.25rem;width:100%;max-width:400px;box-shadow:0 2px 6px rgba(44,40,37,.05),0 16px 44px rgba(44,40,37,.13);animation:riseIn .4s ease both}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.auth-logo{font-size:2.6rem;text-align:center;margin-bottom:.35rem;line-height:1}
+.auth-box h2{font-family:'DM Serif Display',Georgia,serif;font-size:1.9rem;font-weight:400;margin-bottom:.15rem;color:var(--accent);text-align:center}
+.auth-tagline{font-family:'DM Serif Display',Georgia,serif;font-style:italic;font-size:.95rem;color:var(--accent);opacity:.7;text-align:center;margin-bottom:1.2rem}
+.auth-box .auth-sub{font-size:.85rem;color:var(--muted);text-align:center;margin-bottom:1.5rem}
+.auth-field{margin-bottom:.9rem}
+.auth-field label{display:block;font-size:.82rem;font-weight:600;margin-bottom:.3rem;color:var(--muted)}
+.auth-field input{width:100%;padding:.65rem .85rem;border:1.5px solid var(--border);border-radius:9px;font-size:.9rem;background:#fff;font-family:inherit;transition:border-color .15s,box-shadow .15s}
+.auth-field input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.auth-btn-row{margin-top:1.25rem}
+.auth-btn-row button{width:100%;padding:.65rem 1.1rem;font-size:.925rem}
+.auth-err{font-size:.82rem;margin-top:.75rem;min-height:1.1em;text-align:center}
+.auth-err.err{color:#c0392b}
+.auth-err.ok{color:var(--owned)}
+.auth-toggle{text-align:center;margin-top:1rem;font-size:.83rem;color:var(--muted)}
+.auth-toggle a{color:var(--accent);cursor:pointer;text-decoration:underline}
+@media (max-width:640px){
+  header{padding:1rem 1.1rem}
+  header h1{font-size:1.7rem}
+  main{padding:1.25rem 1rem 2.5rem}
+  #search-box{max-width:none;width:100%;margin-left:0}
+}
+</style>
+<script>try{const t=localStorage.getItem('pt-theme');if(t)document.documentElement.dataset.theme=t;}catch(e){}</script>
+</head>
+<body>
+<div id="auth-overlay">
+  <div class="auth-box">
+    <div class="auth-logo">🌸</div>
+    <h2>Perfume Tracker</h2>
+    <p class="auth-tagline">Your fragrance collection, remembered</p>
+    <p class="auth-sub" id="auth-subtitle">Sign in to access your collection</p>
+    <div class="auth-field">
+      <label>Email</label>
+      <input type="email" id="auth-email" placeholder="you@example.com" onkeydown="if(event.key==='Enter')authSubmit()">
+    </div>
+    <div class="auth-field">
+      <label>Password</label>
+      <input type="password" id="auth-password" placeholder="Password" onkeydown="if(event.key==='Enter')authSubmit()">
+    </div>
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.25rem">
+      <input type="checkbox" id="auth-remember" style="cursor:pointer">
+      <label for="auth-remember" style="font-size:.82rem;color:var(--muted);cursor:pointer">Remember me</label>
+    </div>
+    <div class="auth-btn-row">
+      <button class="btn btn-accent" id="auth-btn" onclick="authSubmit()">Sign In</button>
+    </div>
+    <div style="margin-top:.6rem">
+      <button class="btn btn-ghost" style="width:100%" onclick="authGuest()">Just browsing? Continue as Guest</button>
+    </div>
+    <div class="auth-err" id="auth-err"></div>
+    <div class="auth-toggle">
+      <span id="auth-toggle-text">Don't have an account?</span>
+      <a onclick="toggleAuthMode()"><span id="auth-toggle-link"> Sign up</span></a>
+    </div>
+  </div>
+</div>
+
+<header>
+  <div><h1>🌸 Perfume Tracker</h1><p>Your fragrance collection, remembered</p></div>
+  <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">
+    <div id="user-info" style="display:none">
+      <div class="ui-welcome">Welcome!</div>
+      <div class="ui-sub"><span id="user-email"></span> (<a onclick="doSignOut()">sign out</a>)</div>
+    </div>
+    <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+      <button class="btn btn-cta" onclick="openAdd()">+ Add Perfume</button>
+      <div class="more-menu" id="more-menu">
+        <button class="btn btn-outline" onclick="toggleMoreMenu()">⋯ More</button>
+        <div class="more-menu-panel" id="more-menu-panel">
+          <button class="more-menu-item" onclick="closeMoreMenu();importCSV()">📥 Import from CSV</button>
+          <button class="more-menu-item" onclick="closeMoreMenu();exportJSON()">⬇ Export Data (JSON)</button>
+          <div class="more-menu-divider"></div>
+          <button class="more-menu-item" onclick="closeMoreMenu();openModal('theme-modal')">🎨 Color Theme</button>
+          <button class="more-menu-item" onclick="closeMoreMenu();openModal('help-modal')">❓ How To Use</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div id="empty-banner" class="hidden">
+    <p>Your collection is empty. <span>Import your spreadsheet data from the ⋯ More menu, or add your first perfume.</span></p>
+    <button class="btn btn-accent" onclick="importCSV()">Import from CSV</button>
+  </div>
+  <div class="toolbar">
+    <div class="tab-strip" id="tab-strip"></div>
+    <input id="search-box" type="search" placeholder="Search name, house, notes…" oninput="render()">
+  </div>
+  <div class="pgrid" id="pgrid"></div>
+  <div class="no-results" id="no-results" style="display:none"></div>
+</main>
+
+<!-- Add / Edit modal -->
+<div class="modal-bg" id="perfume-modal">
+  <div class="modal">
+    <div class="modal-head"><strong id="pm-title">Add Perfume</strong><button class="modal-x" onclick="closeModal('perfume-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="field-row">
+        <div class="field"><label>Name *</label><input id="f-name" placeholder="e.g. Slowdive"></div>
+        <div class="field"><label>House</label><input id="f-house" placeholder="e.g. Hiram Green"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Status</label>
+          <select id="f-status">
+            <option value="to_try">To Try</option>
+            <option value="sampled">Sample</option>
+            <option value="owned">Owned</option>
+            <option value="finished">Finished (used it all up!)</option>
+            <option value="sold">Sold / Unloved</option>
+          </select>
+        </div>
+        <div class="field"><label>All natural?</label>
+          <select id="f-natural"><option value="">Not sure</option><option value="yes">Yes 🌿</option><option value="no">No</option></select>
+        </div>
+      </div>
+      <div class="field"><label>Rating</label>
+        <div class="star-picker"><span id="f-stars"></span><span class="rating-label" id="f-rating-label"></span><span class="rating-clear" onclick="setFormRating(null)">clear</span></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Price ($)</label><input id="f-price" type="number" step="0.01" min="0" placeholder="58.00"></div>
+        <div class="field"><label>Size (ml)</label><input id="f-size" type="number" step="0.1" min="0" placeholder="5.5"></div>
+      </div>
+      <div class="field"><label>Where / when acquired</label><input id="f-acquired" placeholder="e.g. American Perfumer - 2019"></div>
+      <div class="field"><label>Notes (paste from the perfume's listing)</label><textarea id="f-notes" placeholder="Lime & coconut water, guava, vetiver…"></textarea></div>
+      <div class="field"><label>Your thoughts</label><textarea id="f-thoughts" placeholder="Love. Cold but interesting."></textarea></div>
+      <div class="field"><label>Description (marketing copy, optional)</label><textarea id="f-desc"></textarea></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-danger" id="pm-delete" style="margin-right:auto" onclick="deletePerfume()">Delete</button>
+      <button class="btn btn-ghost" onclick="closeModal('perfume-modal')">Cancel</button>
+      <button class="btn btn-accent" onclick="savePerfume()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Theme modal -->
+<div class="modal-bg" id="theme-modal">
+  <div class="modal" style="max-width:380px">
+    <div class="modal-head"><strong>Color Theme</strong><button class="modal-x" onclick="closeModal('theme-modal')">✕</button></div>
+    <div class="modal-body" id="theme-body"></div>
+  </div>
+</div>
+
+<!-- Help modal -->
+<div class="modal-bg" id="help-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-head"><strong>How To Use</strong><button class="modal-x" onclick="closeModal('help-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="help-section"><h3>One list, five statuses</h3>
+        <p>Every perfume lives on one list and moves through statuses: <strong>To Try → Sample → Owned → Finished or Sold</strong>. Use the buttons on each card to change status with one tap — no re-entering data, ever. <em>Finished</em> means you used it all up because you loved it; <em>Sold</em> means it wasn't for you.</p></div>
+      <div class="help-section"><h3>Ratings</h3>
+        <p>Tap the stars in the add/edit form — left half of a star for a half step. Ratings are always stored as real numbers (0.5–5), so nothing can ever turn into a date again.</p></div>
+      <div class="help-section"><h3>Notes</h3>
+        <p>Paste the notes text straight from the perfume's listing. It's kept exactly as you pasted it. A future update will parse notes into a structured vocabulary and chart what you love.</p></div>
+      <div class="help-section"><h3>Import &amp; export</h3>
+        <ul><li><strong>Import from CSV</strong> loads the spreadsheet data that ships with the app (one-time).</li>
+        <li><strong>Export Data</strong> downloads your whole collection as JSON for safekeeping.</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- CONSTANTS ----
+const STATUS = {
+  owned:    {label:'Owned',    tab:'Owned'},
+  sampled:  {label:'Sample',   tab:'Samples'},
+  finished: {label:'Finished', tab:'Finished'},
+  sold:     {label:'Sold',     tab:'Sold'},
+  to_try:   {label:'To Try',   tab:'To Try'}
+};
+const TAB_ORDER = ['owned','sampled','finished','sold','to_try','all'];
+const FLOWS = {
+  to_try:   [{to:'sampled', label:'🧪 Sampled it'}, {to:'owned', label:'🛍 Bought it!'}],
+  sampled:  [{to:'owned',   label:'🛍 Bought it!'}, {to:'sold',  label:'👋 Let it go'}],
+  owned:    [{to:'finished',label:'🏆 Finished it'},{to:'sold',  label:'👋 Sold it'}],
+  finished: [{to:'owned',   label:'↩ Bought it again'}],
+  sold:     [{to:'owned',   label:'↩ Back in collection'}]
+};
+const THEMES = [
+  {id:'',      name:'Plum (default)', dots:['#8e4585','#f3e6f1','#faf7fb']},
+  {id:'amber', name:'Amber',          dots:['#b45309','#fcefd6','#fdf8ed']},
+  {id:'rose',  name:'Rose',           dots:['#c2255c','#fbe4ec','#fdf5f7']},
+  {id:'ocean', name:'Ocean',          dots:['#1d7a8c','#e0f1f5','#f2f8fa']},
+  {id:'green', name:'Green',          dots:['#2b8a3e','#eaf7ed','#ffffff']}
+];
+
+// ---- STATE ----
+let P = [];            // perfumes
+let NOTE_MAP = {};     // alias map (Phase 2)
+let SETTINGS = {};
+let nextId = 1;
+let _tab = 'all';
+let _formRating = null;
+let _editingId = null;
+
+// ---- HELPERS ----
+const esc = s => String(s??'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const today = () => new Date().toISOString().slice(0,10);
+function starHTML(r){
+  let h='';
+  for(let i=1;i<=5;i++){
+    const cls = r>=i ? 'full' : r>=i-0.5 ? 'half' : '';
+    h += `<span class="star ${cls}">★</span>`;
+  }
+  return h;
+}
+function perMl(p){
+  if(p.price==null || !p.size_ml) return '';
+  return `$${(p.price/p.size_ml).toFixed(2)}/ml`;
+}
+
+// ---- RENDER ----
+function render(){
+  const q = document.getElementById('search-box').value.trim().toLowerCase();
+  // tabs
+  const counts = {all:P.length};
+  Object.keys(STATUS).forEach(s => counts[s] = P.filter(p=>p.status===s).length);
+  document.getElementById('tab-strip').innerHTML = TAB_ORDER.map(t=>{
+    const label = t==='all' ? 'All' : STATUS[t].tab;
+    return `<button class="tab${_tab===t?' active':''}" onclick="setTab('${t}')">${label}<span class="cnt">${counts[t]}</span></button>`;
+  }).join('');
+  // banner
+  document.getElementById('empty-banner').classList.toggle('hidden', P.length>0);
+  // cards
+  let list = P.filter(p => _tab==='all' || p.status===_tab);
+  if(q) list = list.filter(p =>
+    (p.name||'').toLowerCase().includes(q) ||
+    (p.house||'').toLowerCase().includes(q) ||
+    (p.notes_raw||'').toLowerCase().includes(q) ||
+    (p.thoughts||'').toLowerCase().includes(q));
+  list.sort((a,b)=>(a.house||'').localeCompare(b.house||'')||(a.name||'').localeCompare(b.name||''));
+  document.getElementById('pgrid').innerHTML = list.map(cardHTML).join('');
+  const nr = document.getElementById('no-results');
+  nr.style.display = (list.length===0 && P.length>0) ? 'block' : 'none';
+  nr.textContent = q ? `No perfumes match “${q}”.` : 'Nothing here yet.';
+}
+function setTab(t){ _tab=t; render(); }
+function cardHTML(p){
+  const meta = [];
+  if(p.size_ml) meta.push(`${p.size_ml} ml`);
+  if(p.price!=null) meta.push(`$${p.price.toFixed(2)}`);
+  const ppm = perMl(p); if(ppm) meta.push(ppm);
+  if(p.all_natural===true) meta.push('🌿 all natural');
+  const flows = (FLOWS[p.status]||[]).map(f =>
+    `<button class="flow-btn" onclick="event.stopPropagation();setStatus(${p.id},'${f.to}')">${f.label}</button>`).join('');
+  return `<div class="pcard" onclick="openEdit(${p.id})">
+    <div class="pcard-top"><span class="chip chip-${p.status}">${STATUS[p.status]?.label||p.status}</span>
+      <span class="stars">${p.rating!=null ? starHTML(p.rating) : ''}</span></div>
+    <div class="pcard-name">${esc(p.name)}</div>
+    ${p.house ? `<div class="pcard-house">${esc(p.house)}</div>` : ''}
+    ${meta.length ? `<div class="pcard-meta">${meta.join(' · ')}</div>` : ''}
+    ${p.notes_raw ? `<div class="pcard-notes">${esc(p.notes_raw)}</div>` : ''}
+    ${p.thoughts ? `<div class="pcard-thoughts">“${esc(p.thoughts)}”</div>` : ''}
+    <div class="pcard-actions">${flows}</div>
+  </div>`;
+}
+
+// ---- STATUS CHANGES ----
+function setStatus(id, status){
+  const p = P.find(x=>x.id===id); if(!p) return;
+  p.status = status;
+  (p.history = p.history||[]).push({status, date: today()});
+  saveToStorage(); render();
+}
+
+// ---- ADD / EDIT ----
+function openAdd(){
+  _editingId = null; _formRating = null;
+  document.getElementById('pm-title').textContent = 'Add Perfume';
+  document.getElementById('pm-delete').style.display = 'none';
+  ['f-name','f-house','f-price','f-size','f-acquired','f-notes','f-thoughts','f-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-status').value = 'to_try';
+  document.getElementById('f-natural').value = '';
+  renderFormRating();
+  openModal('perfume-modal');
+  document.getElementById('f-name').focus();
+}
+function openEdit(id){
+  const p = P.find(x=>x.id===id); if(!p) return;
+  _editingId = id; _formRating = p.rating ?? null;
+  document.getElementById('pm-title').textContent = 'Edit Perfume';
+  document.getElementById('pm-delete').style.display = '';
+  document.getElementById('f-name').value = p.name||'';
+  document.getElementById('f-house').value = p.house||'';
+  document.getElementById('f-status').value = p.status||'to_try';
+  document.getElementById('f-natural').value = p.all_natural===true?'yes':p.all_natural===false?'no':'';
+  document.getElementById('f-price').value = p.price ?? '';
+  document.getElementById('f-size').value = p.size_ml ?? '';
+  document.getElementById('f-acquired').value = p.acquired||'';
+  document.getElementById('f-notes').value = p.notes_raw||'';
+  document.getElementById('f-thoughts').value = p.thoughts||'';
+  document.getElementById('f-desc').value = p.description||'';
+  renderFormRating();
+  openModal('perfume-modal');
+}
+function savePerfume(){
+  const name = document.getElementById('f-name').value.trim();
+  if(!name){ alert('Please give the perfume a name.'); return; }
+  const nat = document.getElementById('f-natural').value;
+  const priceV = document.getElementById('f-price').value;
+  const sizeV = document.getElementById('f-size').value;
+  const status = document.getElementById('f-status').value;
+  const vals = {
+    name,
+    house: document.getElementById('f-house').value.trim(),
+    status,
+    price: priceV==='' ? null : parseFloat(priceV),
+    size_ml: sizeV==='' ? null : parseFloat(sizeV),
+    acquired: document.getElementById('f-acquired').value.trim(),
+    rating: _formRating,
+    notes_raw: document.getElementById('f-notes').value.trim(),
+    thoughts: document.getElementById('f-thoughts').value.trim(),
+    description: document.getElementById('f-desc').value.trim(),
+    all_natural: nat==='yes' ? true : nat==='no' ? false : null
+  };
+  if(_editingId!=null){
+    const p = P.find(x=>x.id===_editingId);
+    const statusChanged = p.status !== vals.status;
+    if(p.notes_raw !== vals.notes_raw){ p.notes = []; p.notes_reviewed = false; }
+    Object.assign(p, vals);
+    if(statusChanged) (p.history = p.history||[]).push({status: vals.status, date: today()});
+  } else {
+    P.push({ id: nextId++, ...vals, notes: [], notes_reviewed: false, history: [{status, date: today()}] });
+  }
+  closeModal('perfume-modal');
+  saveToStorage(); render();
+}
+function deletePerfume(){
+  if(_editingId==null) return;
+  const p = P.find(x=>x.id===_editingId);
+  if(!confirm(`Delete “${p.name}”? This can't be undone.`)) return;
+  P = P.filter(x=>x.id!==_editingId);
+  closeModal('perfume-modal');
+  saveToStorage(); render();
+}
+
+// ---- STAR PICKER ----
+function renderFormRating(){
+  let h='';
+  for(let i=1;i<=5;i++){
+    const cls = _formRating>=i ? 'full' : _formRating>=i-0.5 ? 'half' : '';
+    h += `<span class="pick-star"><span class="star ${cls}" style="font-size:inherit">★</span>
+      <span class="z l" onclick="setFormRating(${i-0.5})"></span><span class="z r" onclick="setFormRating(${i})"></span></span>`;
+  }
+  document.getElementById('f-stars').innerHTML = h;
+  document.getElementById('f-rating-label').textContent = _formRating!=null ? `${_formRating} / 5` : 'unrated';
+}
+function setFormRating(v){ _formRating = v; renderFormRating(); }
+
+// ---- MODALS / MENU ----
+function openModal(id){
+  if(id==='theme-modal') renderThemeBody();
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.addEventListener('click', e => {
+  if(e.target.classList.contains('modal-bg')) e.target.classList.remove('open');
+  if(!document.getElementById('more-menu').contains(e.target)) closeMoreMenu();
+});
+function toggleMoreMenu(){ document.getElementById('more-menu-panel').classList.toggle('open'); }
+function closeMoreMenu(){ document.getElementById('more-menu-panel').classList.remove('open'); }
+
+// ---- THEME ----
+function renderThemeBody(){
+  const cur = SETTINGS.theme||'';
+  document.getElementById('theme-body').innerHTML = THEMES.map(t=>
+    `<button class="theme-opt${cur===t.id?' active':''}" onclick="setTheme('${t.id}')">
+      <span class="theme-dots">${t.dots.map(d=>`<span style="background:${d};border:1px solid rgba(0,0,0,.08)"></span>`).join('')}</span>${t.name}</button>`).join('');
+}
+function setTheme(id){
+  SETTINGS.theme = id;
+  if(id) document.documentElement.dataset.theme = id;
+  else delete document.documentElement.dataset.theme;
+  try{ id ? localStorage.setItem('pt-theme',id) : localStorage.removeItem('pt-theme'); }catch(e){}
+  renderThemeBody(); saveToStorage();
+}
+
+// ---- CSV IMPORT ----
+function parseCSV(text){
+  const rows=[]; let row=[], cur='', inQ=false;
+  for(let i=0;i<text.length;i++){
+    const c=text[i];
+    if(inQ){
+      if(c==='"'){ if(text[i+1]==='"'){cur+='"';i++;} else inQ=false; }
+      else cur+=c;
+    } else {
+      if(c==='"') inQ=true;
+      else if(c===','){ row.push(cur); cur=''; }
+      else if(c==='\n'){ row.push(cur); rows.push(row); row=[]; cur=''; }
+      else if(c!=='\r') cur+=c;
+    }
+  }
+  if(cur!=='' || row.length){ row.push(cur); rows.push(row); }
+  return rows;
+}
+function numFrom(s){
+  if(s==null || s==='') return null;
+  const m = String(s).match(/(\d*\.?\d+)/);
+  return m ? parseFloat(m[1]) : null;
+}
+async function importCSV(){
+  let text;
+  try{
+    const res = await fetch('perfume-seed-data.csv');
+    if(!res.ok) throw new Error(res.status);
+    text = await res.text();
+  }catch(e){
+    alert('Could not load perfume-seed-data.csv. The import works on the deployed site (or a local web server), and needs the CSV file alongside the app.');
+    return;
+  }
+  const rows = parseCSV(text);
+  const header = rows.shift().map(h=>h.trim());
+  const col = name => header.indexOf(name);
+  const items = [];
+  rows.forEach(r=>{
+    const name = (r[col('name')]||'').trim();
+    if(!name) return;
+    let status = (r[col('status')]||'').trim();
+    if(!STATUS[status]) status = 'to_try';
+    let rating = numFrom(r[col('rating')]);          // "3.5/5" → 3.5
+    if(rating!=null){ rating = Math.round(rating*2)/2; if(rating<0.5||rating>5) rating = null; }
+    const natRaw = (r[col('all_natural')]||'').trim().toUpperCase();
+    items.push({
+      id: 0, // assigned below
+      name,
+      house: (r[col('house')]||'').trim(),
+      status,
+      price: numFrom(r[col('price')]),               // "freebie" → null
+      size_ml: numFrom(r[col('size_ml')]),           // "~.25 ml left" → 0.25
+      acquired: (r[col('acquired')]||'').trim(),
+      rating,
+      notes_raw: (r[col('notes_raw')]||'').trim(),
+      notes: [],
+      notes_reviewed: false,
+      description: (r[col('description')]||'').trim(),
+      thoughts: (r[col('thoughts')]||'').trim(),
+      all_natural: natRaw==='Y' ? true : natRaw==='N' ? false : null,
+      history: [{status, date: today()}]
+    });
+  });
+  if(!items.length){ alert('No perfumes found in the CSV.'); return; }
+  if(P.length && !confirm(`You already have ${P.length} perfume${P.length!==1?'s':''}. Import will ADD ${items.length} more (it doesn't check for duplicates). Continue?`)) return;
+  items.forEach(it => { it.id = nextId++; P.push(it); });
+  saveToStorage(); _tab='all'; render();
+  alert(`✅ Imported ${items.length} perfumes!`);
+}
+
+// ---- EXPORT ----
+function exportJSON(){
+  const blob = new Blob([JSON.stringify({perfumes:P, note_map:NOTE_MAP, settings:SETTINGS, exported: new Date().toISOString()}, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `perfume-tracker-export-${today()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ---- SUPABASE + PERSISTENCE ----
+const SUPABASE_URL = 'https://zymvsdkwmdhrwjycxisr.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_svwMiYGDfWnINCeo28XiLw_UIFHRUg5';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let _authMode = 'signin';
+let _currentUser = null;
+let _guestMode = false;
+let _saveTimer = null;
+
+function toggleAuthMode(){
+  _authMode = _authMode==='signin'?'signup':'signin';
+  document.getElementById('auth-btn').textContent = _authMode==='signin'?'Sign In':'Sign Up';
+  document.getElementById('auth-subtitle').textContent = _authMode==='signin'?'Sign in to access your collection':'Create your account';
+  document.getElementById('auth-toggle-text').textContent = _authMode==='signin'?"Don't have an account?":'Already have an account?';
+  document.getElementById('auth-toggle-link').textContent = _authMode==='signin'?' Sign up':' Sign in';
+  document.getElementById('auth-err').textContent='';
+  document.getElementById('auth-err').className='auth-err';
+}
+async function authSubmit(){
+  const email = document.getElementById('auth-email').value.trim();
+  const pass = document.getElementById('auth-password').value;
+  const remember = document.getElementById('auth-remember').checked;
+  const errEl = document.getElementById('auth-err');
+  errEl.textContent=''; errEl.className='auth-err';
+  if(!email||!pass){ errEl.textContent='Please enter your email and password.'; errEl.className='auth-err err'; return; }
+  if(remember) localStorage.setItem('pt-remembered-email', email);
+  else localStorage.removeItem('pt-remembered-email');
+  const {data,error} = _authMode==='signin'
+    ? await sb.auth.signInWithPassword({email,password:pass})
+    : await sb.auth.signUp({email,password:pass});
+  if(error){ errEl.textContent=error.message; errEl.className='auth-err err'; return; }
+  if(_authMode==='signup'&&!data.session){ errEl.textContent='✓ Check your email to confirm your account.'; errEl.className='auth-err ok'; return; }
+  if(data.session) await handleAuthSession(data.session);
+}
+function loadRememberedEmail(){
+  const saved = localStorage.getItem('pt-remembered-email');
+  if(saved){ document.getElementById('auth-email').value=saved; document.getElementById('auth-remember').checked=true; }
+}
+async function doSignOut(){
+  if(_guestMode){ location.reload(); return; }
+  await sb.auth.signOut();
+  location.reload();
+}
+function showApp(){
+  document.getElementById('auth-overlay').classList.add('hidden');
+  document.getElementById('user-info').style.display='block';
+  document.getElementById('user-email').textContent = _guestMode ? 'guest (data stays on this device)' : _currentUser.email;
+  render();
+}
+let _sessionHandled = false;
+async function handleAuthSession(session){
+  if(!session || _sessionHandled) return;
+  _sessionHandled = true;
+  _currentUser = session.user;
+  await loadUserData(session.user);
+  showApp();
+}
+function authGuest(){
+  _guestMode = true;
+  _currentUser = {id:'guest', email:''};
+  try{
+    const raw = localStorage.getItem('pt-guest-data');
+    if(raw){ const d = JSON.parse(raw); P = d.perfumes||[]; NOTE_MAP = d.note_map||{}; SETTINGS = d.settings||{}; }
+  }catch(e){}
+  nextId = Math.max(0, ...P.map(p=>p.id)) + 1;
+  if(SETTINGS.theme) setTheme(SETTINGS.theme);
+  showApp();
+}
+async function _doSave(){
+  if(!_currentUser) return;
+  if(_guestMode){
+    try{ localStorage.setItem('pt-guest-data', JSON.stringify({perfumes:P, note_map:NOTE_MAP, settings:SETTINGS})); }catch(e){}
+    return;
+  }
+  try{
+    const {error} = await sb.from('perfume_data').upsert(
+      {user_id:_currentUser.id, perfumes:P, note_map:NOTE_MAP, settings:SETTINGS, updated_at:new Date().toISOString()},
+      {onConflict:'user_id'});
+    if(error) console.error('save error', error);
+  }catch(e){ console.error('save error', e); }
+}
+function saveToStorage(){ clearTimeout(_saveTimer); _saveTimer = setTimeout(_doSave, 600); }
+async function loadUserData(user){
+  try{
+    const {data,error} = await sb.from('perfume_data').select('*').eq('user_id',user.id).maybeSingle();
+    if(error){ console.error('loadUserData error:', error); return; }
+    if(data){
+      P = data.perfumes||[];
+      NOTE_MAP = data.note_map||{};
+      SETTINGS = data.settings||{};
+      if(SETTINGS.theme) setTheme(SETTINGS.theme);
+    }
+    nextId = Math.max(0, ...P.map(p=>p.id)) + 1;
+  }catch(e){ console.error('loadUserData error:', e); }
+}
+
+// ---- INIT ----
+loadRememberedEmail();
+sb.auth.onAuthStateChange((_e, session) => { if(session) handleAuthSession(session); });
+sb.auth.getSession().then(({data}) => { if(data.session) handleAuthSession(data.session); });
+render();
+</script>
+</body>
+</html>
