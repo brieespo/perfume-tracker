@@ -157,6 +157,32 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 .res-item{display:flex;align-items:center;justify-content:space-between;gap:.6rem;width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:.87rem;margin-bottom:.35rem;text-align:left;color:var(--text)}
 .res-item:hover{border-color:var(--accent);background:var(--accent-light)}
 .res-item .fam{font-size:.72rem;color:var(--muted);white-space:nowrap}
+/* My Notes screen (Phase 3) */
+.profile-line{font-family:'DM Serif Display',Georgia,serif;font-size:1.55rem;line-height:1.35;margin:0 0 1.4rem;max-width:46rem}
+.profile-line strong{color:var(--accent);font-weight:400}
+.chart-unrev{background:var(--accent-light);border:1.5px solid var(--sand);border-radius:12px;padding:.7rem 1rem;margin-bottom:1.2rem;display:flex;align-items:center;justify-content:space-between;gap:.8rem;flex-wrap:wrap;font-size:.86rem}
+.chart-controls{display:flex;align-items:center;gap:.8rem;flex-wrap:wrap;margin-bottom:.35rem}
+.chart-controls select{padding:.5rem .75rem;border:1.5px solid var(--border);border-radius:9px;font-size:.9rem;font-family:inherit;background:var(--card);color:var(--text)}
+.chart-controls select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-light)}
+.lvl-toggle{display:flex;border:1.5px solid var(--border);border-radius:999px;overflow:hidden;background:var(--card)}
+.lvl-btn{padding:.42rem 1rem;border:none;background:transparent;font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer;font-family:inherit}
+.lvl-btn.active{background:var(--accent);color:#fff}
+.chart-caption{font-size:.78rem;color:var(--muted);margin-bottom:1rem;min-height:1.1em}
+.bar-chart{max-width:640px}
+.bar-row{display:grid;grid-template-columns:150px 1fr 52px;align-items:center;gap:.6rem;padding:.18rem .3rem;border-radius:6px}
+.bar-row:hover{background:var(--accent-light)}
+.bar-label{font-size:.83rem;color:var(--text);text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-track{position:relative;height:16px}
+.bar-fill{position:absolute;top:0;height:100%;background:var(--accent);border-radius:0 4px 4px 0;min-width:2px}
+.bar-fill.pos{background:#2a78d6;border-radius:0 4px 4px 0}
+.bar-fill.neg{background:#e34948;border-radius:4px 0 0 4px}
+.bar-track.div::before{content:'';position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--border)}
+.bar-val{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.chart-empty{color:var(--muted);font-size:.95rem;padding:2rem 0}
+@media (max-width:640px){
+  .bar-row{grid-template-columns:104px 1fr 44px}
+  .profile-line{font-size:1.25rem}
+}
 @media (max-width:640px){
   header{padding:1rem 1.1rem}
   header h1{font-size:1.7rem}
@@ -207,6 +233,8 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
       <div class="ui-sub"><span id="user-email"></span> (<a onclick="doSignOut()">sign out</a>)</div>
     </div>
     <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+      <button class="btn btn-outline active" id="nav-collection" onclick="showScreen('collection')">Collection</button>
+      <button class="btn btn-outline" id="nav-notes" onclick="showScreen('notes')">My Notes</button>
       <button class="btn btn-cta" onclick="openAdd()">+ Add Perfume</button>
       <div class="more-menu" id="more-menu">
         <button class="btn btn-outline" onclick="toggleMoreMenu()">⋯ More</button>
@@ -223,6 +251,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 </header>
 
 <main>
+<div id="collection-section">
   <div id="empty-banner" class="hidden">
     <p>Your collection is empty. <span>Import your spreadsheet data from the ⋯ More menu, or add your first perfume.</span></p>
     <button class="btn btn-accent" onclick="importCSV()">Import from CSV</button>
@@ -234,6 +263,34 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
   </div>
   <div class="pgrid" id="pgrid"></div>
   <div class="no-results" id="no-results" style="display:none"></div>
+</div>
+
+<div id="notes-section" style="display:none">
+  <div class="profile-line" id="profile-line"></div>
+  <div id="chart-unrev" class="chart-unrev" style="display:none">
+    <span id="chart-unrev-text"></span>
+    <button class="review-btn" onclick="openReview()">📝 Review now</button>
+  </div>
+  <div class="chart-controls">
+    <select id="chart-view" onchange="renderNotesScreen()">
+      <option value="loved">Owned + Finished — what I love</option>
+      <option value="pref">Preference score ✨</option>
+      <option value="owned">Owned</option>
+      <option value="finished">Finished</option>
+      <option value="sampled">Sampling</option>
+      <option value="sold">Sold / Unloved</option>
+      <option value="to_try">To Try</option>
+      <option value="all">Everything</option>
+    </select>
+    <div class="lvl-toggle">
+      <button class="lvl-btn active" id="lvl-note" onclick="setChartLevel('note')">Notes</button>
+      <button class="lvl-btn" id="lvl-family" onclick="setChartLevel('family')">Families</button>
+    </div>
+  </div>
+  <div class="chart-caption" id="chart-caption"></div>
+  <div class="bar-chart" id="bar-chart"></div>
+  <div style="margin-top:.8rem"><button class="btn btn-ghost" id="chart-more" style="display:none" onclick="toggleChartAll()"></button></div>
+</div>
 </main>
 
 <!-- Add / Edit modal -->
@@ -299,6 +356,8 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
         <p>Tap the stars in the add/edit form — left half of a star for a half step. Ratings are always stored as real numbers (0.5–5), so nothing can ever turn into a date again.</p></div>
       <div class="help-section"><h3>Notes</h3>
         <p>Paste the notes text straight from the perfume's listing — it's kept exactly as you pasted it, and the app also parses it into structured notes (shown as chips under the paste box). Anything it doesn't recognize appears as an amber chip: tap it to assign it to an existing note, create a new one, or discard it. The app remembers your answer, so the same phrasing never asks twice.</p></div>
+      <div class="help-section"><h3>My Notes — charts &amp; your scent profile</h3>
+        <p>The <strong>My Notes</strong> screen charts which notes show up in your collection. The dropdown picks the view — <em>Owned + Finished</em> is "what I actually love," and <em>Preference score ✨</em> weighs everything: finished ×3, owned ×2, loved samples (rated 4★+ or FS-worthy) ×1, sold −1. Plain samples don't count — sniffing something isn't loving it. Toggle between individual notes and families, and hover a bar to see which perfumes are behind it. The line at the top is your scent profile — it recomputes live as your collection changes.</p></div>
       <div class="help-section"><h3>Review queue</h3>
         <p>The <strong>📝 Review notes</strong> button lists perfumes whose pasted notes haven't been confirmed yet (like everything from the spreadsheet import). Each one shows what the parser found — usually you just glance and tap <strong>✓ Looks right</strong>. Perfumes only count in the upcoming charts once reviewed, but nothing else waits on it.</p></div>
       <div class="help-section"><h3>Import &amp; export</h3>
@@ -562,6 +621,137 @@ function parseNotes(raw){
 function noteName(id){ return NOTE_BY_ID[id] ? NOTE_BY_ID[id].name : id; }
 function reviewables(){ return P.filter(p => p.notes_raw && !p.notes_reviewed); }
 
+// ---- MY NOTES SCREEN (Phase 3) ----
+let _screen = 'collection';
+let _chartLevel = 'note';
+let _chartAll = false;
+function showScreen(s){
+  _screen = s;
+  document.getElementById('collection-section').style.display = s==='collection' ? '' : 'none';
+  document.getElementById('notes-section').style.display = s==='notes' ? '' : 'none';
+  document.getElementById('nav-collection').classList.toggle('active', s==='collection');
+  document.getElementById('nav-notes').classList.toggle('active', s==='notes');
+  if(s==='notes') renderNotesScreen();
+}
+function setChartLevel(l){
+  _chartLevel = l; _chartAll = false;
+  document.getElementById('lvl-note').classList.toggle('active', l==='note');
+  document.getElementById('lvl-family').classList.toggle('active', l==='family');
+  renderNotesScreen();
+}
+function toggleChartAll(){ _chartAll = !_chartAll; renderNotesScreen(); }
+// Preference weights (per the plan): finished +3, owned +2, loved sample
+// (rated >=4 or FS-worthy) +1, plain sample 0, sold -1.
+function prefWeight(p){
+  if(p.status==='finished') return 3;
+  if(p.status==='owned') return 2;
+  if(p.status==='sampled') return (p.rating>=4 || p.fs_wish) ? 1 : 0;
+  if(p.status==='sold') return -1;
+  return 0;
+}
+// counts[key] = {v, names:[]} — only reviewed perfumes contribute
+function chartCounts(view, level){
+  const counts = {};
+  P.forEach(p => {
+    if(!p.notes_reviewed || !p.notes?.length) return;
+    let w;
+    if(view==='pref'){ w = prefWeight(p); if(w===0) return; }
+    else {
+      const ok = view==='loved' ? (p.status==='owned'||p.status==='finished')
+        : view==='all' ? true : p.status===view;
+      if(!ok) return;
+      w = 1;
+    }
+    const keys = level==='family'
+      ? [...new Set(p.notes.map(id => NOTE_BY_ID[id]?.family||'other'))]
+      : p.notes;
+    keys.forEach(k => {
+      counts[k] = counts[k]||{v:0, names:[]};
+      counts[k].v += w;
+      counts[k].names.push(p.name);
+    });
+  });
+  return counts;
+}
+const FAM_PRETTY = {'warm/amber':'warm amber','green/herbal':'green herbal','musky/animalic':'musky animalic','smoky/resinous':'smoky resinous','fresh/other':'fresh'};
+function prettyFam(f){ return FAM_PRETTY[f]||f; }
+function chartLabel(key){
+  return (_chartLevel==='family' ? prettyFam(key) : noteName(key)).replace(/\s*\(generic\)/,'');
+}
+function renderNotesScreen(){
+  // review nudge
+  const rc = reviewables().length;
+  const unrev = document.getElementById('chart-unrev');
+  unrev.style.display = rc ? '' : 'none';
+  if(rc) document.getElementById('chart-unrev-text').textContent =
+    `${rc} perfume${rc!==1?'s':''} ${rc!==1?"aren't":"isn't"} in your charts yet — their notes are waiting for a quick review.`;
+  // profile line
+  document.getElementById('profile-line').innerHTML = scentProfile();
+  // chart
+  const view = document.getElementById('chart-view').value;
+  document.getElementById('chart-caption').textContent = view==='pref'
+    ? 'finished ×3 · owned ×2 · loved samples (4★+ or FS-worthy) ×1 · sold −1' : '';
+  const counts = chartCounts(view, _chartLevel);
+  let rows = Object.entries(counts).sort((a,b) => b[1].v - a[1].v);
+  const chart = document.getElementById('bar-chart');
+  const more = document.getElementById('chart-more');
+  if(!rows.length){
+    chart.innerHTML = `<div class="chart-empty">Nothing to chart here yet — ${rc?'review some notes and this fills right up.':'add perfumes with notes and this fills right up.'}</div>`;
+    more.style.display = 'none';
+    return;
+  }
+  const CAP = 40;
+  more.style.display = (_chartLevel==='note' && rows.length>CAP) ? '' : 'none';
+  more.textContent = _chartAll ? 'Show fewer' : `Show all ${rows.length}`;
+  if(_chartLevel==='note' && !_chartAll) rows = rows.slice(0, CAP);
+  const maxV = Math.max(...rows.map(([,x]) => Math.abs(x.v)));
+  chart.innerHTML = rows.map(([key,x]) => {
+    const names = x.names.slice(0,12).join(', ') + (x.names.length>12 ? ` +${x.names.length-12} more` : '');
+    const w = Math.abs(x.v)/maxV*100;
+    const bar = view==='pref'
+      ? `<div class="bar-track div"><div class="bar-fill ${x.v>=0?'pos':'neg'}" style="${x.v>=0?'left:50%':'right:50%'};width:${w/2}%"></div></div>`
+      : `<div class="bar-track"><div class="bar-fill" style="left:0;width:${w}%"></div></div>`;
+    const val = view==='pref' && x.v>0 ? '+'+x.v : x.v;
+    return `<div class="bar-row" title="${esc(names)}"><span class="bar-label">${esc(chartLabel(key))}</span>${bar}<span class="bar-val">${val}</span></div>`;
+  }).join('');
+}
+// ---- SCENT PROFILE LINE (Phase 3) ----
+function scentProfile(){
+  const famC = chartCounts('pref','family');
+  const noteC = chartCounts('pref','note');
+  const fams = Object.entries(famC).filter(([,x])=>x.v>0).sort((a,b)=>b[1].v-a[1].v);
+  const notes = Object.entries(noteC).filter(([,x])=>x.v>0).sort((a,b)=>b[1].v-a[1].v);
+  if(!fams.length || !notes.length)
+    return 'Still getting to know you — review a few perfumes’ notes and your scent profile will appear here.';
+  const b = s => `<strong>${esc(s)}</strong>`;
+  const f1 = prettyFam(fams[0][0]), v1 = fams[0][1].v;
+  const f2 = fams[1] ? prettyFam(fams[1][0]) : null, v2 = fams[1] ? fams[1][1].v : 0;
+  const v3 = fams[2] ? fams[2][1].v : 0;
+  const n1 = noteName(notes[0][0]).replace(/\s*\(generic\)/,'');
+  let arr;
+  if(!f2 || v1 >= 2*v2){
+    arr = [`You're a ${b(f1)} person through and through — and ${b(n1)} can do no wrong.`,
+           `It's a ${b(f1)} world and everything else is just visiting. Especially anything with ${b(n1)}.`,
+           `${b(f1)}, always. Preferably with ${b(n1)} in it.`];
+  } else if(v3 >= 0.8*v1){
+    arr = [`Your tastes roam — ${b(f1)}, ${b(f2)}, wherever ${b(n1)} turns up.`,
+           `Eclectic, but not random: ${b(n1)} keeps finding its way onto your skin.`];
+  } else {
+    arr = [`You're a ${b(f1)} person with a serious weakness for ${b(f2)} — and you can't say no to ${b(n1)}.`,
+           `Your heart lives somewhere between ${b(f1)} and ${b(f2)}, and ${b(n1)} has the keys.`,
+           `This is what you look for: ${b(f1)} with a ${b(f2)} streak, and ${b(n1)} whenever possible.`];
+  }
+  let line = arr[(v1 + n1.length) % arr.length];
+  // gentle negative: a family that keeps showing up in sold perfumes and isn't loved
+  const soldC = chartCounts('sold','family');
+  let neg = null, worst = 2;
+  Object.entries(soldC).forEach(([f,x]) => {
+    if(x.v > worst && (famC[f]?.v||0) <= 0){ neg = prettyFam(f); worst = x.v; }
+  });
+  if(neg) line += ` But ${b(neg)} keeps letting you down.`;
+  return line;
+}
+
 // ---- RENDER ----
 function render(){
   const q = document.getElementById('search-box').value.trim().toLowerCase();
@@ -591,6 +781,7 @@ function render(){
   const nr = document.getElementById('no-results');
   nr.style.display = (list.length===0 && P.length>0) ? 'block' : 'none';
   nr.textContent = q ? `No perfumes match “${q}”.` : 'Nothing here yet.';
+  if(_screen==='notes') renderNotesScreen();
 }
 function setTab(t){ _tab=t; render(); }
 function cardHTML(p){

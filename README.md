@@ -60,7 +60,7 @@ Each perfume object:
 
 Phase 1 (done): auth, CRUD, status tabs + one-tap status changes, search, star ratings, CSV import, JSON export, themes.
 Phase 2 (done): canonical note vocabulary (~170 notes, 11 families) + alias map, paste-parser with review chips, review queue, FS-worthy flag on samples.
-Phase 3: note frequency charts (CSS bars), family rollup, preference score, scent profile line.
+Phase 3 (done): My Notes screen — note/family frequency charts (pure CSS bars), preference-score view (finished ×3, owned ×2, loved samples ×1, sold −1), live scent-profile line.
 Phase 4: filters, price-per-ml sort, polish.
 
 See `CLAUDE.md` for the full plan.
