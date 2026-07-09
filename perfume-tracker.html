@@ -481,7 +481,7 @@ const CANON = {
   'ambergris':['grey amber'],'africa stone':['hyraceum'],'castoreum':[],'civet':[],
   'animalic notes':['animalic','sexual animalic'],'fur':['grey fur','fuzzy paws']},
 'smoky/resinous':{
-  'incense':['frankincense','olibanum','church incense'],'myrrh':['sweet myrrh'],'opoponax':['opopanax'],
+  'incense':['church incense'],'frankincense':['olibanum','olibanul'],'myrrh':['sweet myrrh'],'opoponax':['opopanax'],
   'tobacco':['tobacco leaf','aromatic tobacco','clove cigarette'],
   'leather':['suede','sueded','russian leather','worn leather','leather jacket'],
   'smoke':['woodsmoke','chimney smoke','campfire','bonfire','ash','lamplight','fire','flame','choya nakh'],
@@ -1056,6 +1056,21 @@ function normalizeNoteMap(){
   NOTE_MAP.aliases = NOTE_MAP.aliases||{};
   NOTE_MAP.custom = NOTE_MAP.custom||[];
   rebuildNoteIndex();
+  migrateParsedNotes();
+}
+// Vocabulary corrections applied to already-parsed perfumes (idempotent).
+function migrateParsedNotes(){
+  let changed = false;
+  P.forEach(p => {
+    // frankincense/olibanum used to alias to 'incense'
+    if(p.notes?.includes('incense') && /frankincense|olibanum|olibanul/i.test(p.notes_raw||'')){
+      const i = p.notes.indexOf('incense');
+      const standalone = /incense/i.test((p.notes_raw||'').replace(/frankincense|olibanum|olibanul/gi,''));
+      if(standalone){ if(!p.notes.includes('frankincense')){ p.notes.splice(i+1,0,'frankincense'); changed = true; } }
+      else { p.notes[i] = 'frankincense'; changed = true; }
+    }
+  });
+  if(changed) saveToStorage();
 }
 
 // ---- INIT ----
