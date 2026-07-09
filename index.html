@@ -716,6 +716,11 @@ function renderNotesScreen(){
   }).join('');
 }
 // ---- SCENT PROFILE LINE (Phase 3) ----
+function listify(items){
+  if(items.length<=1) return items[0]||'';
+  if(items.length===2) return `${items[0]} and ${items[1]}`;
+  return `${items.slice(0,-1).join(', ')}, and ${items[items.length-1]}`;
+}
 function scentProfile(){
   const famC = chartCounts('pref','family');
   const noteC = chartCounts('pref','note');
@@ -724,24 +729,33 @@ function scentProfile(){
   if(!fams.length || !notes.length)
     return 'Still getting to know you — review a few perfumes’ notes and your scent profile will appear here.';
   const b = s => `<strong>${esc(s)}</strong>`;
-  const f1 = prettyFam(fams[0][0]), v1 = fams[0][1].v;
-  const f2 = fams[1] ? prettyFam(fams[1][0]) : null, v2 = fams[1] ? fams[1][1].v : 0;
+  const pretty = id => noteName(id).replace(/\s*\(generic\)/,'');
+  const f1k = fams[0][0], f1 = prettyFam(f1k), v1 = fams[0][1].v;
+  const f2k = fams[1] ? fams[1][0] : null, f2 = f2k ? prettyFam(f2k) : null, v2 = f2k ? fams[1][1].v : 0;
   const v3 = fams[2] ? fams[2][1].v : 0;
-  const n1 = noteName(notes[0][0]).replace(/\s*\(generic\)/,'');
+  const topNotes = notes.slice(0,3).map(([id]) => pretty(id));
+  const n1 = topNotes[0];
+  const nlist = listify(topNotes.map(b));
+  const many = topNotes.length > 1;   // verb agreement for the note list
   let arr;
   if(!f2 || v1 >= 2*v2){
-    arr = [`You're a ${b(f1)} person through and through — and ${b(n1)} can do no wrong.`,
-           `It's a ${b(f1)} world and everything else is just visiting. Especially anything with ${b(n1)}.`,
-           `${b(f1)}, always. Preferably with ${b(n1)} in it.`];
+    arr = [`You're a ${b(f1)} person through and through — with ${nlist} doing the heavy lifting.`,
+           `It's a ${b(f1)} world and everything else is just visiting. ${nlist} ${many?'are':'is'} the proof.`,
+           `${b(f1)}, always. Preferably wearing ${nlist}.`];
   } else if(v3 >= 0.8*v1){
-    arr = [`Your tastes roam — ${b(f1)}, ${b(f2)}, wherever ${b(n1)} turns up.`,
-           `Eclectic, but not random: ${b(n1)} keeps finding its way onto your skin.`];
+    arr = [`Eclectic, but not random: you keep circling back to ${b(f1)} and ${b(f2)}, and ${nlist} ${many?'keep':'keeps'} finding ${many?'their way':'its way'} onto your skin.`,
+           `Your tastes roam — ${b(f1)} today, ${b(f2)} tomorrow — but ${nlist} ${many?'are':'is'} always welcome.`];
   } else {
-    arr = [`You're a ${b(f1)} person with a serious weakness for ${b(f2)} — and you can't say no to ${b(n1)}.`,
-           `Your heart lives somewhere between ${b(f1)} and ${b(f2)}, and ${b(n1)} has the keys.`,
-           `This is what you look for: ${b(f1)} with a ${b(f2)} streak, and ${b(n1)} whenever possible.`];
+    arr = [`You're a ${b(f1)} person with a serious weakness for ${b(f2)} — and you can't say no to ${nlist}.`,
+           `Your heart lives somewhere between ${b(f1)} and ${b(f2)}, and ${nlist} ${many?'have':'has'} the keys.`,
+           `This is what you look for: ${b(f1)} with a ${b(f2)} streak, carried by ${nlist}.`];
   }
   let line = arr[(v1 + n1.length) % arr.length];
+  // dark horse: a strong note from outside the top two families
+  const crush = notes.find(([id,x]) =>
+    x.v >= 3 && !topNotes.includes(pretty(id)) &&
+    NOTE_BY_ID[id] && NOTE_BY_ID[id].family !== f1k && NOTE_BY_ID[id].family !== f2k);
+  if(crush) line += ` Dark horse: ${b(pretty(crush[0]))}, sneaking in from the ${b(prettyFam(NOTE_BY_ID[crush[0]].family))} side.`;
   // gentle negative: a family that keeps showing up in sold perfumes and isn't loved
   const soldC = chartCounts('sold','family');
   let neg = null, worst = 2;
