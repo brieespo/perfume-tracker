@@ -59,7 +59,7 @@ Each perfume object:
 ## Roadmap
 
 Phase 1 (done): auth, CRUD, status tabs + one-tap status changes, search, star ratings, CSV import, JSON export, themes.
-Phase 2: canonical note vocabulary + alias map, paste-parser, review queue.
+Phase 2 (done): canonical note vocabulary (~170 notes, 11 families) + alias map, paste-parser with review chips, review queue, FS-worthy flag on samples.
 Phase 3: note frequency charts (CSS bars), family rollup, preference score, scent profile line.
 Phase 4: filters, price-per-ml sort, polish.
 

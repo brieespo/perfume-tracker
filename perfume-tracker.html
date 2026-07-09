@@ -135,6 +135,28 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 .auth-err.ok{color:var(--owned)}
 .auth-toggle{text-align:center;margin-top:1rem;font-size:.83rem;color:var(--muted)}
 .auth-toggle a{color:var(--accent);cursor:pointer;text-decoration:underline}
+/* Note chips & review (Phase 2) */
+.review-btn{background:var(--accent-light);color:var(--accent);border:1.5px solid var(--sand);padding:.4rem .95rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.review-btn:hover{border-color:var(--accent)}
+.chip-strip{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem;min-height:1.4rem}
+.nchip{display:inline-flex;align-items:center;gap:.35rem;max-width:100%;padding:.18rem .6rem;border-radius:999px;font-size:.78rem;font-weight:600;background:var(--owned-bg);color:var(--owned);border:1px solid transparent}
+.nchip .fam{font-weight:400;opacity:.7;font-size:.68rem}
+.nchip .x{cursor:pointer;opacity:.55;font-weight:700}
+.nchip .x:hover{opacity:1}
+.nchip.un{background:var(--finished-bg);color:var(--finished);cursor:pointer;border:1px dashed var(--finished)}
+.nchip.un:hover{filter:brightness(.96)}
+.nchip .txt{max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pcard-note-chip{display:inline-block;padding:.08rem .5rem;border-radius:999px;font-size:.7rem;font-weight:600;background:var(--accent-light);color:var(--accent);margin:.12rem .18rem 0 0}
+.flow-btn.on{background:var(--accent);color:#fff}
+.review-raw{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:.7rem .9rem;font-size:.84rem;color:var(--muted);margin:.6rem 0 0;max-height:110px;overflow-y:auto}
+.review-progress{font-size:.8rem;color:var(--muted);font-family:'DM Sans',sans-serif}
+.review-pname{font-family:'DM Serif Display',Georgia,serif;font-size:1.35rem;line-height:1.2}
+.review-phouse{font-size:.85rem;color:var(--muted);font-weight:600}
+.review-sec{font-size:.75rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:1rem}
+.res-list{max-height:240px;overflow-y:auto;margin-top:.6rem}
+.res-item{display:flex;align-items:center;justify-content:space-between;gap:.6rem;width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:.87rem;margin-bottom:.35rem;text-align:left;color:var(--text)}
+.res-item:hover{border-color:var(--accent);background:var(--accent-light)}
+.res-item .fam{font-size:.72rem;color:var(--muted);white-space:nowrap}
 @media (max-width:640px){
   header{padding:1rem 1.1rem}
   header h1{font-size:1.7rem}
@@ -208,6 +230,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
   <div class="toolbar">
     <div class="tab-strip" id="tab-strip"></div>
     <input id="search-box" type="search" placeholder="Search name, house, notes…" oninput="render()">
+    <button class="review-btn" id="review-btn" style="display:none" onclick="openReview()">📝 Review notes <span id="review-count"></span></button>
   </div>
   <div class="pgrid" id="pgrid"></div>
   <div class="no-results" id="no-results" style="display:none"></div>
@@ -244,7 +267,8 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
         <div class="field"><label>Size (ml)</label><input id="f-size" type="number" step="0.1" min="0" placeholder="5.5"></div>
       </div>
       <div class="field"><label>Where / when acquired</label><input id="f-acquired" placeholder="e.g. American Perfumer - 2019"></div>
-      <div class="field"><label>Notes (paste from the perfume's listing)</label><textarea id="f-notes" placeholder="Lime & coconut water, guava, vetiver…"></textarea></div>
+      <div class="field"><label>Notes (paste from the perfume's listing)</label><textarea id="f-notes" placeholder="Lime & coconut water, guava, vetiver…" oninput="editNotesInput()"></textarea>
+        <div class="chip-strip" id="f-notes-chips"></div></div>
       <div class="field"><label>Your thoughts</label><textarea id="f-thoughts" placeholder="Love. Cold but interesting."></textarea></div>
       <div class="field"><label>Description (marketing copy, optional)</label><textarea id="f-desc"></textarea></div>
     </div>
@@ -270,14 +294,57 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
     <div class="modal-head"><strong>How To Use</strong><button class="modal-x" onclick="closeModal('help-modal')">✕</button></div>
     <div class="modal-body">
       <div class="help-section"><h3>One list, five statuses</h3>
-        <p>Every perfume lives on one list and moves through statuses: <strong>To Try → Sample → Owned → Finished or Sold</strong>. Use the buttons on each card to change status with one tap — no re-entering data, ever. <em>Finished</em> means you used it all up because you loved it; <em>Sold</em> means it wasn't for you.</p></div>
+        <p>Every perfume lives on one list and moves through statuses: <strong>To Try → Sampling → Owned → Finished or Sold</strong>. Use the buttons on each card to change status with one tap — no re-entering data, ever. <em>Finished</em> means you used it all up because you loved it; <em>Sold</em> means it wasn't for you. While sampling, tap <strong>💜 FS-worthy</strong> to flag a sample you'd buy a full size of.</p></div>
       <div class="help-section"><h3>Ratings</h3>
         <p>Tap the stars in the add/edit form — left half of a star for a half step. Ratings are always stored as real numbers (0.5–5), so nothing can ever turn into a date again.</p></div>
       <div class="help-section"><h3>Notes</h3>
-        <p>Paste the notes text straight from the perfume's listing. It's kept exactly as you pasted it. A future update will parse notes into a structured vocabulary and chart what you love.</p></div>
+        <p>Paste the notes text straight from the perfume's listing — it's kept exactly as you pasted it, and the app also parses it into structured notes (shown as chips under the paste box). Anything it doesn't recognize appears as an amber chip: tap it to assign it to an existing note, create a new one, or discard it. The app remembers your answer, so the same phrasing never asks twice.</p></div>
+      <div class="help-section"><h3>Review queue</h3>
+        <p>The <strong>📝 Review notes</strong> button lists perfumes whose pasted notes haven't been confirmed yet (like everything from the spreadsheet import). Each one shows what the parser found — usually you just glance and tap <strong>✓ Looks right</strong>. Perfumes only count in the upcoming charts once reviewed, but nothing else waits on it.</p></div>
       <div class="help-section"><h3>Import &amp; export</h3>
         <ul><li><strong>Import from CSV</strong> loads the spreadsheet data that ships with the app (one-time).</li>
         <li><strong>Export Data</strong> downloads your whole collection as JSON for safekeeping.</li></ul></div>
+    </div>
+  </div>
+</div>
+
+<!-- Review queue modal -->
+<div class="modal-bg" id="review-modal">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-head"><strong>Review Notes</strong><span class="review-progress" id="rev-progress"></span><button class="modal-x" onclick="closeModal('review-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="review-pname" id="rev-name"></div>
+      <div class="review-phouse" id="rev-house"></div>
+      <div class="review-raw" id="rev-raw"></div>
+      <div class="review-sec">Parsed notes</div>
+      <div class="chip-strip" id="rev-matched"></div>
+      <div class="review-sec" id="rev-un-label">Didn't recognize — tap to teach</div>
+      <div class="chip-strip" id="rev-unmatched"></div>
+      <div style="margin-top:1rem"><button class="btn btn-ghost" onclick="openResolver(null,'review')">＋ Add a note manually</button></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" onclick="revSkip()">Skip for now</button>
+      <button class="btn btn-accent" onclick="revDone()">✓ Looks right</button>
+    </div>
+  </div>
+</div>
+
+<!-- Note resolver modal (stacks above review/edit) -->
+<div class="modal-bg" id="resolve-modal" style="z-index:300">
+  <div class="modal" style="max-width:440px">
+    <div class="modal-head"><strong id="res-title">Assign note</strong><button class="modal-x" onclick="closeModal('resolve-modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="field" style="margin-bottom:.4rem"><input id="res-search" placeholder="Search notes…" oninput="renderResList()"></div>
+      <div class="res-list" id="res-list"></div>
+      <div class="review-sec">Or create a new note</div>
+      <div class="field-row" style="margin-top:.5rem">
+        <div class="field"><input id="res-new-name" placeholder="Note name"></div>
+        <div class="field"><select id="res-new-fam"></select></div>
+      </div>
+      <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+        <button class="btn btn-accent" onclick="resCreate()">＋ Create &amp; assign</button>
+        <button class="btn btn-ghost" id="res-discard" onclick="resDiscard()">🗑 Not a note — discard</button>
+      </div>
     </div>
   </div>
 </div>
@@ -286,7 +353,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 // ---- CONSTANTS ----
 const STATUS = {
   owned:    {label:'Owned',    tab:'Owned'},
-  sampled:  {label:'Sample',   tab:'Samples'},
+  sampled:  {label:'Sampling', tab:'Sampling'},
   finished: {label:'Finished', tab:'Finished'},
   sold:     {label:'Sold',     tab:'Sold'},
   to_try:   {label:'To Try',   tab:'To Try'}
@@ -294,7 +361,7 @@ const STATUS = {
 const TAB_ORDER = ['owned','sampled','finished','sold','to_try','all'];
 const FLOWS = {
   to_try:   [{to:'sampled', label:'🧪 Sampled it'}, {to:'owned', label:'🛍 Bought it!'}],
-  sampled:  [{to:'owned',   label:'🛍 Bought it!'}, {to:'sold',  label:'👋 Let it go'}],
+  sampled:  [{to:'owned',   label:'🛍 Bought it!'}, {fs:true}, {to:'sold', label:'👋 Let it go'}],
   owned:    [{to:'finished',label:'🏆 Finished it'},{to:'sold',  label:'👋 Sold it'}],
   finished: [{to:'owned',   label:'↩ Bought it again'}],
   sold:     [{to:'owned',   label:'↩ Back in collection'}]
@@ -332,6 +399,169 @@ function perMl(p){
   return `$${(p.price/p.size_ml).toFixed(2)}/ml`;
 }
 
+// ---- NOTE VOCABULARY (Phase 2) ----
+// Canonical notes by family. Each entry: 'note name': [aliases…].
+// Matching is substring-based with word boundaries, longest key first,
+// so 'orange blossom' wins over 'orange' and plain plurals match automatically.
+const NOTE_FAMILIES = ['white floral','floral','citrus','fruity','warm/amber','woody','spicy','green/herbal','musky/animalic','smoky/resinous','fresh/other'];
+const CANON = {
+'white floral':{
+  'tuberose':[],'jasmine':['sambac jasmine','jasmine sambac','star jasmine','pikake','motia attar','jessamine'],
+  'orange blossom':['orange flower'],'gardenia':['tiare','tahitian gardenia'],
+  'ylang-ylang':['ylang ylang','ylang','cananga'],'frangipani':['plumeria'],
+  'magnolia':['champaca','white champa flower'],'honeysuckle':['woodbine'],
+  'lily of the valley':['muguet','lily-of-the-valley'],'lotus':['water lily','waterlily'],
+  'moonflower':[],'linden blossom':['linden-blossom','linden'],'white floral notes':['white floral','white florals','white flowers'],'kewda':['kewra']},
+'floral':{
+  'rose':['rosa gallica','damascus','bulgarian rose','damask rose','wild rose','white rose','apothecary rose','moroccan rose'],
+  'iris':['orris','orris root','white iris'],'violet':['sugared violet','white violet'],'peony':[],
+  'lily':['ginger lily','lilies'],'osmanthus':[],'mimosa':['cassie'],'lilac':[],'heliotrope':[],
+  'carnation':[],'geranium':[],'lavender':['french lavender','lavender flowers'],
+  'narcissus':['daffodil','jonquil'],'hyacinth':[],'hibiscus':['hibiscus flowers'],
+  'chamomile':['wild chamomile','lavender chamomile'],'wildflowers':['spring flowers','summer blooming flowers','young spring flowers','florals','damp florals','flowers'],
+  'cactus flower':['yucca blossom','cactus flowers'],'apple blossom':['apple blossoms'],'peach blossom':[],
+  'tulip':[],'wisteria':[],'passion flower':['passion flowers','angel’s trumpet',"angel's trumpet"],'freesia':[],'poppy':[],'orchid':[],'cyclamen':[],'broom':['genet'],'hawthorn':['hawthorne'],'rhododendron':[],'tobacco blossom':['tobacco flower']},
+'citrus':{
+  'orange':['sweet orange','wild oranges','juicy orange','blood orange','bitter orange','orange fruit'],
+  'mandarin':['tangerine','red mandarin','mandarin orange','clementine'],
+  'lime':['lime zest','kaffir lime','kaffir lime leaf'],'lemon':['sicilian lemon'],
+  'citron':['green citron'],'grapefruit':['pink grapefruit','red grapefruit','pomelo','grapefruit zest'],
+  'bergamot':[],'neroli':[],'petitgrain':[],'yuzu':[],'citrus notes':['citrus','citruses','multiple citrus']},
+'fruity':{
+  'peach':['peach skin','white peach','peach candies'],'apple':['green apple','poisoned apple','crisp apple','apple skins'],
+  'guava':[],'mango':['green mango','bao mango'],'coconut':['coconut water','coconut waters','coconut milk','coconut pulp','dried coconut'],
+  'fig':['tuscan fig','wild fig'],'berry':['berries','boysenberry','blackberry','blueberry'],
+  'raspberry':['raspberry ketone'],'strawberry':[],'cherry':['sour cherries','black cherry'],
+  'plum':[],'apricot':['apricot jam'],'pear':[],'pineapple':[],
+  'melon':['honeydew','watermelon','cantaloupe'],'banana':[],
+  'blackcurrant':['black currant','cassis','blackcurrant bud','black currant bud','currant'],
+  'pomegranate':[],'grape':['white grape'],'passionfruit':['passion fruit','passion-fruit'],
+  'dried fruit':['dried fruits','raisin'],'tropical fruit':['tropical fruits','tropical flower'],'rhubarb':[],'gooseberry':['star gooseberry'],'fruit (generic)':['fruit','fruits']},
+'warm/amber':{
+  'amber':['pale amber','vintage amber','amber resin','fossilized amber','amber woods','warm amber','mature amber'],
+  'vanilla':['bourbon vanilla','vanilla bean','black vanilla','vanilla syrup','vanilla pods','vanilla oil','three different vanillas'],
+  'benzoin':['benzoine'],'tonka':['tonka bean','coumarin'],
+  'labdanum':['cistus','clear labdanum','dark labdanum','rockrose'],
+  'honey':['wildflower honey','honeycomb','royal jelly','pollen'],'beeswax':['bees wax','candle','candles','wax'],
+  'caramel':['dulce de leche'],'sugar':['burned sugar','burnt sugar','spun sugar','brown sugar'],
+  'marshmallow':['marshmallows'],'chocolate':['cocoa','cacao','cocao','bitter chocolate','dark chocolate'],
+  'coffee':['espresso','coffee beans','yirgacheffe'],'almond':['toasted almond','bitter almond'],
+  'hazelnut':[],'pistachio':[],'cream':['sweet cream','milky','milk','rice milk','cream soda','lactonic'],
+  'rice':['basmati rice','jasmine rice'],'immortelle':['helichrysum','everlasting'],'praline':[],
+  'boozy notes':['rum','rhum','scotch','whiskey','whisky','cognac','champagne','brandy','curacao','rum ether','cider','wine'],
+  'nag champa':[],'agave':[],'cake':['wedding cake','birthday cake','macarons','macaroons']},
+'woody':{
+  'sandalwood':['santal','white sandalwood'],'cedar':['cedarwood','texas cedar','atlas cedar','charred cedar','arborvitae','cedar leaves','port orford cedar'],
+  'vetiver':['indonesian vetiver','vetyver'],'oud':['agarwood','black agar','oudh','synthetic oud'],
+  'woods (generic)':['woods','woody','wood','exotic woods','blond woods','blonde woods','white woods','light woods','dark woods','hardwood','woody notes','forest','branches'],
+  'pine':['longleaf pine','pine needles'],'spruce':['black spruce'],'fir':['balsam fir','fir balsam'],
+  'cypress':['green cypress','hinoki'],'driftwood':[],'oak':['oakwood','oak wood'],
+  'birch':['birchwood'],'rosewood':[],'guaiac wood':['guaiacwood','guiacwood','guaiac'],
+  'patchouli':['blackened patchouli','patchouly'],'juniper':[],'mesquite':['mesquite wood'],'mahogany':[],'nagarmotha':['cypriol']},
+'spicy':{
+  'pepper':['black pepper','white pepper','vanuatu pepper','sichuan pepper','green pepper','peppercorn','peppered'],
+  'pink pepper':['pink peppercorn','baies roses'],'cardamom':['cardamon'],
+  'cinnamon':['cassia','cinnamon leaf','cassia bark'],'coriander':[],'cumin':[],
+  'clove':['clove bud','cloves'],'saffron':[],'ginger':['thai ginger','ginger syrup'],
+  'nutmeg':[],'turmeric':[],'anise':['star anise','fennel','licorice','sweet fennel','aniseed'],
+  'pimento':['pimento berry','allspice'],'cubeb':[],'sumac':[],'spices (generic)':['spices','spicy notes','sweet spices','paprika']},
+'green/herbal':{
+  'green notes':['greenery','lush greenery','bright green notes','green foliage','foliage','green accord','greens','stems','green chilli'],'beebalm':[],'myrtle':[],
+  'grass':['grasses','fresh cut grass','cut grass','sweet grass','sweet grasses','dry grass','african bluegrass'],
+  'fern':['ferns','sword ferns'],'tea':['earl grey','green tea','black tea','chai','oolong'],
+  'wormwood':['artemisia','absinthe'],'herbs':['sweet herbs','herbal notes','rice paddy herb'],
+  'sage':['clary sage','sage blossom','white sage'],'rosemary':[],'basil':[],
+  'mint':['peppermint','spearmint'],'tomato leaf':['crushed tomato leaf'],
+  'ivy':['ivy leaf','trailing ivy'],'galbanum':[],'bay leaf':['laurel','laurel leaves','bay leaves'],
+  'tarragon':[],'violet leaf':[],'oakmoss':['treemoss','tree moss'],
+  'moss':['mosses','damp mosses','woodland mosses'],'hay':['windblown hay','straw','wheat'],
+  'davana':[],'angelica':[],'carrot seed':['carrot'],'cannabis':['hemp'],'kudzu':['kudzu flower','maile vine','vines']},
+'musky/animalic':{
+  'musk':['musks','white musk','dark musk','black musk','skin musk','fur musk','deer musk','violet musk','vanilla musk','cashmeran','special musk blend','musk accord'],
+  'ambergris':['grey amber'],'africa stone':['hyraceum'],'castoreum':[],'civet':[],
+  'animalic notes':['animalic','sexual animalic'],'fur':['grey fur','fuzzy paws']},
+'smoky/resinous':{
+  'incense':['frankincense','olibanum','church incense'],'myrrh':['sweet myrrh'],'opoponax':['opopanax'],
+  'tobacco':['tobacco leaf','aromatic tobacco','clove cigarette'],
+  'leather':['suede','sueded','russian leather','worn leather','leather jacket'],
+  'smoke':['woodsmoke','chimney smoke','campfire','bonfire','ash','lamplight','fire','flame','choya nakh'],
+  'resins':['resin','resinous','amber-tinged resins'],'balsam':['peru balsam','tolu balsam','balsams','balsamic'],
+  'copal':[],'elemi':[],'styrax':[],'cade':[],'birch tar':['tar','asphalt'],'spikenard':['red spikenard','nard'],'mastic':[]},
+'fresh/other':{
+  'ozone':['electric ozone','ozonic'],'aquatic':['marine','ocean air','dark water','surf','shoreline','seaside','iodine','swimming pool','sea air','the sea','seashell'],
+  'salt':['sea salt','salty','saltwater','salted'],'aldehydes':['aldehyde','aldehydic'],
+  'powder':['dusting powder','powdery','baby powder'],'rain':['petrichor','rainwater','parisian rain'],
+  'earth':['wet earth','chilled earth','soaked earth','damp earth','dirt','soil','earthy accord','earthy','forest floor','gulf mud','swamp mud','mud'],
+  'mushroom':['cepes','forest mushrooms','truffle','black truffle','fungus'],
+  'mineral notes':['minerals','mineral','stone','flint','lava accord','lava'],'metallic':['warm metal','metal','steel','blood'],
+  'ink':['black ink','pen ink','inky'],'cotton':['clean cotton','cotton dress'],'solar notes':['solar','salicylate'],'cashmere':['cashmere sweater'],'paper':['books','old books','parchment'],
+  'lipstick':['red lipstick','black lipstick','jet black lipstick'],
+  'fresh air':['night air','damp air','open-window air','fresh open-window air','cold air'],'snow':['ice','frost']}
+};
+const slug = s => String(s).toLowerCase().trim().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+let NOTE_BY_ID = {};   // id -> {id, name, family, custom?}
+let KEY_LIST = [];     // [{key, id}] longest key first
+function rebuildNoteIndex(){
+  NOTE_BY_ID = {}; const keys = [];
+  for(const fam in CANON){
+    for(const name in CANON[fam]){
+      const id = slug(name);
+      NOTE_BY_ID[id] = {id, name, family:fam};
+      keys.push([name.toLowerCase(), id]);
+      CANON[fam][name].forEach(a => keys.push([a.toLowerCase(), id]));
+    }
+  }
+  ((NOTE_MAP&&NOTE_MAP.custom)||[]).forEach(n => {
+    if(!NOTE_BY_ID[n.id]){ NOTE_BY_ID[n.id] = {...n, custom:true}; keys.push([n.name.toLowerCase(), n.id]); }
+  });
+  KEY_LIST = keys.map(([key,id])=>({key,id})).sort((a,b)=>b.key.length-a.key.length);
+}
+
+// ---- NOTE PARSER (Phase 2) ----
+const STRIP_RE = /\b(top|middle|heart|base)\s+notes?\b|\bnotes? of\b|\bnotes?\b|\baccords?\b|\babsolutes?\b|\bessences?\b|\bextracts?\b|\btinctures?\b|\borganic\b|\bnatural\b|\bsynthetic\b|\ba (hint|touch|wisp|splash|dose) of\b/g;
+const SKIP_FRAGS = new Set(['a','an','the','of','more','etc','and','or','with']);
+// word-boundary substring search; tolerates a plain plural right after the key
+function findKey(frag, key){
+  let i = frag.indexOf(key);
+  while(i !== -1){
+    const before = i===0 || !/[a-z0-9]/.test(frag[i-1]);
+    let j = i + key.length;
+    if(frag[j]==='e' && frag[j+1]==='s') j+=2; else if(frag[j]==='s') j+=1;
+    const after = j>=frag.length || !/[a-z0-9]/.test(frag[j]);
+    if(before && after) return i;
+    i = frag.indexOf(key, i+1);
+  }
+  return -1;
+}
+function parseNotes(raw){
+  const ua = (NOTE_MAP&&NOTE_MAP.aliases)||{};
+  const found = [], unmatched = [];
+  const cleaned = String(raw||'').toLowerCase().replace(/\([^)]*\)/g,' ').replace(/\*/g,'');
+  const frags = cleaned.split(/,|;|\/|\n|·|•|\||&| and | \+ /)
+    .map(f => f.replace(STRIP_RE,' ').replace(/[.:!?"“”]+/g,' ').replace(/\s+/g,' ').trim())
+    .filter(Boolean);
+  frags.forEach(frag => {
+    if(frag.length<2 || SKIP_FRAGS.has(frag)) return;
+    const sing = frag.replace(/s$/,'');
+    if(frag in ua || sing in ua){                 // user-taught alias (null = discarded)
+      const id = (frag in ua) ? ua[frag] : ua[sing];
+      if(id && NOTE_BY_ID[id]) found.push(id);
+      return;
+    }
+    const taken = []; let hit = false;
+    for(const {key,id} of KEY_LIST){
+      const i = findKey(frag, key);
+      if(i===-1) continue;
+      if(taken.some(([s,e]) => i<e && i+key.length>s)) continue;
+      taken.push([i, i+key.length]); found.push(id); hit = true;
+    }
+    if(!hit) unmatched.push(frag);
+  });
+  return {notes:[...new Set(found)], unmatched:[...new Set(unmatched)]};
+}
+function noteName(id){ return NOTE_BY_ID[id] ? NOTE_BY_ID[id].name : id; }
+function reviewables(){ return P.filter(p => p.notes_raw && !p.notes_reviewed); }
+
 // ---- RENDER ----
 function render(){
   const q = document.getElementById('search-box').value.trim().toLowerCase();
@@ -350,7 +580,12 @@ function render(){
     (p.name||'').toLowerCase().includes(q) ||
     (p.house||'').toLowerCase().includes(q) ||
     (p.notes_raw||'').toLowerCase().includes(q) ||
+    (p.notes||[]).some(id => noteName(id).toLowerCase().includes(q)) ||
     (p.thoughts||'').toLowerCase().includes(q));
+  // review-queue badge
+  const rc = reviewables().length;
+  document.getElementById('review-btn').style.display = rc ? '' : 'none';
+  document.getElementById('review-count').textContent = rc;
   list.sort((a,b)=>(a.house||'').localeCompare(b.house||'')||(a.name||'').localeCompare(b.name||''));
   document.getElementById('pgrid').innerHTML = list.map(cardHTML).join('');
   const nr = document.getElementById('no-results');
@@ -364,15 +599,19 @@ function cardHTML(p){
   if(p.price!=null) meta.push(`$${p.price.toFixed(2)}`);
   const ppm = perMl(p); if(ppm) meta.push(ppm);
   if(p.all_natural===true) meta.push('🌿 all natural');
-  const flows = (FLOWS[p.status]||[]).map(f =>
-    `<button class="flow-btn" onclick="event.stopPropagation();setStatus(${p.id},'${f.to}')">${f.label}</button>`).join('');
+  const flows = (FLOWS[p.status]||[]).map(f => f.fs
+    ? `<button class="flow-btn${p.fs_wish?' on':''}" onclick="event.stopPropagation();toggleFS(${p.id})">${p.fs_wish?'💜 FS-worthy ✓':'💜 FS-worthy'}</button>`
+    : `<button class="flow-btn" onclick="event.stopPropagation();setStatus(${p.id},'${f.to}')">${f.label}</button>`).join('');
+  const noteBits = (p.notes_reviewed && p.notes?.length)
+    ? `<div>${p.notes.slice(0,6).map(id=>`<span class="pcard-note-chip">${esc(noteName(id))}</span>`).join('')}${p.notes.length>6?`<span class="pcard-note-chip">+${p.notes.length-6}</span>`:''}</div>`
+    : p.notes_raw ? `<div class="pcard-notes">${esc(p.notes_raw)}</div>` : '';
   return `<div class="pcard" onclick="openEdit(${p.id})">
     <div class="pcard-top"><span class="chip chip-${p.status}">${STATUS[p.status]?.label||p.status}</span>
       <span class="stars">${p.rating!=null ? starHTML(p.rating) : ''}</span></div>
     <div class="pcard-name">${esc(p.name)}</div>
     ${p.house ? `<div class="pcard-house">${esc(p.house)}</div>` : ''}
     ${meta.length ? `<div class="pcard-meta">${meta.join(' · ')}</div>` : ''}
-    ${p.notes_raw ? `<div class="pcard-notes">${esc(p.notes_raw)}</div>` : ''}
+    ${noteBits}
     ${p.thoughts ? `<div class="pcard-thoughts">“${esc(p.thoughts)}”</div>` : ''}
     <div class="pcard-actions">${flows}</div>
   </div>`;
@@ -385,6 +624,11 @@ function setStatus(id, status){
   (p.history = p.history||[]).push({status, date: today()});
   saveToStorage(); render();
 }
+function toggleFS(id){
+  const p = P.find(x=>x.id===id); if(!p) return;
+  p.fs_wish = !p.fs_wish;
+  saveToStorage(); render();
+}
 
 // ---- ADD / EDIT ----
 function openAdd(){
@@ -395,6 +639,7 @@ function openAdd(){
   document.getElementById('f-status').value = 'to_try';
   document.getElementById('f-natural').value = '';
   renderFormRating();
+  renderEditChips();
   openModal('perfume-modal');
   document.getElementById('f-name').focus();
 }
@@ -414,6 +659,7 @@ function openEdit(id){
   document.getElementById('f-thoughts').value = p.thoughts||'';
   document.getElementById('f-desc').value = p.description||'';
   renderFormRating();
+  renderEditChips();
   openModal('perfume-modal');
 }
 function savePerfume(){
@@ -439,11 +685,18 @@ function savePerfume(){
   if(_editingId!=null){
     const p = P.find(x=>x.id===_editingId);
     const statusChanged = p.status !== vals.status;
-    if(p.notes_raw !== vals.notes_raw){ p.notes = []; p.notes_reviewed = false; }
+    if(p.notes_raw !== vals.notes_raw){          // re-parse only when the raw text changed,
+      const parsed = parseNotes(vals.notes_raw); // so manual review fixes survive other edits
+      vals.notes = parsed.notes;
+      vals.notes_reviewed = !vals.notes_raw ? true : parsed.unmatched.length===0;
+    }
     Object.assign(p, vals);
     if(statusChanged) (p.history = p.history||[]).push({status: vals.status, date: today()});
   } else {
-    P.push({ id: nextId++, ...vals, notes: [], notes_reviewed: false, history: [{status, date: today()}] });
+    const parsed = parseNotes(vals.notes_raw);
+    P.push({ id: nextId++, ...vals, notes: parsed.notes,
+      notes_reviewed: !vals.notes_raw ? true : parsed.unmatched.length===0,
+      history: [{status, date: today()}] });
   }
   closeModal('perfume-modal');
   saveToStorage(); render();
@@ -469,6 +722,128 @@ function renderFormRating(){
   document.getElementById('f-rating-label').textContent = _formRating!=null ? `${_formRating} / 5` : 'unrated';
 }
 function setFormRating(v){ _formRating = v; renderFormRating(); }
+
+// ---- EDIT-MODAL NOTE CHIPS ----
+let _editChipTimer = null;
+let _editParse = {notes:[], unmatched:[]};
+function editNotesInput(){ clearTimeout(_editChipTimer); _editChipTimer = setTimeout(renderEditChips, 300); }
+function renderEditChips(){
+  const raw = document.getElementById('f-notes').value.trim();
+  const el = document.getElementById('f-notes-chips');
+  if(!raw){ _editParse = {notes:[], unmatched:[]}; el.innerHTML=''; return; }
+  _editParse = parseNotes(raw);
+  el.innerHTML =
+    _editParse.notes.map(id=>`<span class="nchip">${esc(noteName(id))} <span class="fam">${esc(NOTE_BY_ID[id]?.family||'')}</span></span>`).join('') +
+    _editParse.unmatched.map((f,i)=>`<span class="nchip un" onclick="openResolver(_editParse.unmatched[${i}],'edit')"><span class="txt">${esc(f)}</span> ?</span>`).join('');
+}
+
+// ---- REVIEW QUEUE ----
+let _revQueue = [], _revIdx = 0, _revState = null;
+function openReview(){
+  _revQueue = reviewables().map(p=>p.id);
+  if(!_revQueue.length) return;
+  _revIdx = 0;
+  loadReview();
+  openModal('review-modal');
+}
+function revCurrent(){ return P.find(p=>p.id===_revQueue[_revIdx]); }
+function loadReview(){
+  const p = revCurrent();
+  _revState = parseNotes(p.notes_raw);
+  renderReview();
+}
+function renderReview(){
+  const p = revCurrent();
+  document.getElementById('rev-progress').textContent = `${_revIdx+1} of ${_revQueue.length}`;
+  document.getElementById('rev-name').textContent = p.name;
+  document.getElementById('rev-house').textContent = p.house||'';
+  document.getElementById('rev-raw').textContent = p.notes_raw;
+  document.getElementById('rev-matched').innerHTML = _revState.notes.length
+    ? _revState.notes.map(id=>`<span class="nchip">${esc(noteName(id))} <span class="fam">${esc(NOTE_BY_ID[id]?.family||'')}</span><span class="x" onclick="revRemove('${id}')">✕</span></span>`).join('')
+    : '<span style="font-size:.82rem;color:var(--muted)">nothing parsed yet</span>';
+  const un = _revState.unmatched;
+  document.getElementById('rev-un-label').style.display = un.length ? '' : 'none';
+  document.getElementById('rev-unmatched').innerHTML =
+    un.map((f,i)=>`<span class="nchip un" onclick="openResolver(_revState.unmatched[${i}],'review')"><span class="txt">${esc(f)}</span> ?</span>`).join('');
+}
+function revRemove(id){ _revState.notes = _revState.notes.filter(x=>x!==id); renderReview(); }
+function revDone(){
+  const p = revCurrent();
+  p.notes = _revState.notes;
+  p.notes_reviewed = true;
+  saveToStorage();
+  revAdvance();
+}
+function revSkip(){ revAdvance(); }
+function revAdvance(){
+  _revIdx++;
+  while(_revIdx < _revQueue.length){
+    const p = revCurrent();
+    if(p && p.notes_raw && !p.notes_reviewed) break;
+    _revIdx++;
+  }
+  if(_revIdx >= _revQueue.length){ closeModal('review-modal'); render(); return; }
+  loadReview();
+}
+
+// ---- NOTE RESOLVER ----
+let _resFrag = null, _resCtx = null;
+function openResolver(frag, ctx){
+  _resFrag = frag; _resCtx = ctx;
+  document.getElementById('res-title').textContent = frag ? `“${frag.length>40?frag.slice(0,40)+'…':frag}”` : 'Add a note';
+  document.getElementById('res-discard').style.display = frag ? '' : 'none';
+  document.getElementById('res-search').value = '';
+  document.getElementById('res-new-name').value = frag ? frag.slice(0,40) : '';
+  document.getElementById('res-new-fam').innerHTML = NOTE_FAMILIES.map(f=>`<option value="${f}">${f}</option>`).join('');
+  renderResList();
+  openModal('resolve-modal');
+  document.getElementById('res-search').focus();
+}
+function renderResList(){
+  const q = document.getElementById('res-search').value.trim().toLowerCase();
+  const all = Object.values(NOTE_BY_ID)
+    .filter(n => !q || n.name.toLowerCase().includes(q) || n.family.toLowerCase().includes(q))
+    .sort((a,b)=>a.name.localeCompare(b.name))
+    .slice(0, 50);
+  document.getElementById('res-list').innerHTML = all.map(n=>
+    `<button class="res-item" onclick="resAssign('${n.id}')"><span>${esc(n.name)}${n.custom?' ✦':''}</span><span class="fam">${esc(n.family)}</span></button>`).join('')
+    || '<div style="font-size:.85rem;color:var(--muted);padding:.5rem 0">No matches — create it below.</div>';
+}
+function resAssign(id){
+  if(_resFrag){
+    NOTE_MAP.aliases = NOTE_MAP.aliases||{};
+    NOTE_MAP.aliases[_resFrag] = id;          // teach: this phrasing never asks again
+  }
+  applyResolution(id);
+}
+function resDiscard(){
+  NOTE_MAP.aliases = NOTE_MAP.aliases||{};
+  NOTE_MAP.aliases[_resFrag] = null;          // remembered as "not a note"
+  applyResolution(null);
+}
+function resCreate(){
+  const name = document.getElementById('res-new-name').value.trim();
+  if(!name){ alert('Give the note a name.'); return; }
+  const fam = document.getElementById('res-new-fam').value;
+  const id = slug(name);
+  if(!NOTE_BY_ID[id]){
+    NOTE_MAP.custom = NOTE_MAP.custom||[];
+    NOTE_MAP.custom.push({id, name, family:fam});
+    rebuildNoteIndex();
+  }
+  resAssign(id);
+}
+function applyResolution(id){
+  if(_resCtx==='review' && _revState){
+    if(id && !_revState.notes.includes(id)) _revState.notes.push(id);
+    if(_resFrag) _revState.unmatched = _revState.unmatched.filter(f=>f!==_resFrag);
+    renderReview();
+  } else if(_resCtx==='edit'){
+    renderEditChips();
+  }
+  saveToStorage();
+  closeModal('resolve-modal');
+}
 
 // ---- MODALS / MENU ----
 function openModal(id){
@@ -643,6 +1018,7 @@ function authGuest(){
     const raw = localStorage.getItem('pt-guest-data');
     if(raw){ const d = JSON.parse(raw); P = d.perfumes||[]; NOTE_MAP = d.note_map||{}; SETTINGS = d.settings||{}; }
   }catch(e){}
+  normalizeNoteMap();
   nextId = Math.max(0, ...P.map(p=>p.id)) + 1;
   if(SETTINGS.theme) setTheme(SETTINGS.theme);
   showApp();
@@ -671,11 +1047,19 @@ async function loadUserData(user){
       SETTINGS = data.settings||{};
       if(SETTINGS.theme) setTheme(SETTINGS.theme);
     }
+    normalizeNoteMap();
     nextId = Math.max(0, ...P.map(p=>p.id)) + 1;
   }catch(e){ console.error('loadUserData error:', e); }
 }
+function normalizeNoteMap(){
+  if(!NOTE_MAP || typeof NOTE_MAP!=='object') NOTE_MAP = {};
+  NOTE_MAP.aliases = NOTE_MAP.aliases||{};
+  NOTE_MAP.custom = NOTE_MAP.custom||[];
+  rebuildNoteIndex();
+}
 
 // ---- INIT ----
+normalizeNoteMap();
 loadRememberedEmail();
 sb.auth.onAuthStateChange((_e, session) => { if(session) handleAuthSession(session); });
 sb.auth.getSession().then(({data}) => { if(data.session) handleAuthSession(data.session); });
