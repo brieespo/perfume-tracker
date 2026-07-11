@@ -327,7 +327,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
         <div class="field"><label>Size (ml)</label><input id="f-size" type="number" step="0.1" min="0" placeholder="5.5"></div>
       </div>
       <div class="field-row">
-        <div class="field"><label>Nose (perfumer)</label><input id="f-nose" placeholder="e.g. Hiram Green"></div>
+        <div class="field"><label>Perfumer</label><input id="f-nose" placeholder="e.g. Hiram Green"></div>
         <div class="field"><label>Where / when acquired</label><input id="f-acquired" placeholder="e.g. American Perfumer - 2019"></div>
       </div>
       <div class="field"><label>Notes (paste from the perfume's listing)</label><textarea id="f-notes" placeholder="Lime & coconut water, guava, vetiver…" oninput="editNotesInput()"></textarea>
@@ -827,7 +827,7 @@ function cardHTML(p){
       <span class="stars">${p.rating!=null ? starHTML(p.rating) : ''}</span></div>
     <div class="pcard-name">${esc(p.name)}</div>
     ${p.house ? `<div class="pcard-house">${esc(p.house)}</div>` : ''}
-    ${p.nose ? `<div class="pcard-nose">Nose: ${esc(p.nose)}</div>` : ''}
+    ${p.nose ? `<div class="pcard-nose">Perfumer: ${esc(p.nose)}</div>` : ''}
     ${meta.length ? `<div class="pcard-meta">${meta.join(' · ')}</div>` : ''}
     ${noteBits}
     ${p.thoughts ? `<div class="pcard-thoughts">“${esc(p.thoughts)}”</div>` : ''}
