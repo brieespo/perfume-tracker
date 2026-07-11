@@ -76,6 +76,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 .star.half{background:linear-gradient(90deg,var(--star) 50%,var(--star-empty) 50%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
 .pcard-name{font-family:'DM Serif Display',Georgia,serif;font-size:1.25rem;line-height:1.2}
 .pcard-house{font-size:.83rem;color:var(--muted);font-weight:600}
+.pcard-nose{font-size:.76rem;color:var(--muted);font-style:italic}
 .pcard-meta{font-size:.78rem;color:var(--muted)}
 .pcard-notes{font-size:.82rem;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pcard-thoughts{font-size:.82rem;color:var(--muted);font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -325,7 +326,10 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
         <div class="field"><label>Price ($)</label><input id="f-price" type="number" step="0.01" min="0" placeholder="58.00"></div>
         <div class="field"><label>Size (ml)</label><input id="f-size" type="number" step="0.1" min="0" placeholder="5.5"></div>
       </div>
-      <div class="field"><label>Where / when acquired</label><input id="f-acquired" placeholder="e.g. American Perfumer - 2019"></div>
+      <div class="field-row">
+        <div class="field"><label>Nose (perfumer)</label><input id="f-nose" placeholder="e.g. Hiram Green"></div>
+        <div class="field"><label>Where / when acquired</label><input id="f-acquired" placeholder="e.g. American Perfumer - 2019"></div>
+      </div>
       <div class="field"><label>Notes (paste from the perfume's listing)</label><textarea id="f-notes" placeholder="Lime & coconut water, guava, vetiver…" oninput="editNotesInput()"></textarea>
         <div class="chip-strip" id="f-notes-chips"></div></div>
       <div class="field"><label>Your thoughts</label><textarea id="f-thoughts" placeholder="Love. Cold but interesting."></textarea></div>
@@ -790,6 +794,7 @@ function render(){
   if(q) list = list.filter(p =>
     (p.name||'').toLowerCase().includes(q) ||
     (p.house||'').toLowerCase().includes(q) ||
+    (p.nose||'').toLowerCase().includes(q) ||
     (p.notes_raw||'').toLowerCase().includes(q) ||
     (p.notes||[]).some(id => noteName(id).toLowerCase().includes(q)) ||
     (p.thoughts||'').toLowerCase().includes(q));
@@ -822,6 +827,7 @@ function cardHTML(p){
       <span class="stars">${p.rating!=null ? starHTML(p.rating) : ''}</span></div>
     <div class="pcard-name">${esc(p.name)}</div>
     ${p.house ? `<div class="pcard-house">${esc(p.house)}</div>` : ''}
+    ${p.nose ? `<div class="pcard-nose">Nose: ${esc(p.nose)}</div>` : ''}
     ${meta.length ? `<div class="pcard-meta">${meta.join(' · ')}</div>` : ''}
     ${noteBits}
     ${p.thoughts ? `<div class="pcard-thoughts">“${esc(p.thoughts)}”</div>` : ''}
@@ -847,7 +853,7 @@ function openAdd(){
   _editingId = null; _formRating = null;
   document.getElementById('pm-title').textContent = 'Add Perfume';
   document.getElementById('pm-delete').style.display = 'none';
-  ['f-name','f-house','f-price','f-size','f-acquired','f-notes','f-thoughts','f-desc'].forEach(id=>document.getElementById(id).value='');
+  ['f-name','f-house','f-nose','f-price','f-size','f-acquired','f-notes','f-thoughts','f-desc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-status').value = 'to_try';
   document.getElementById('f-natural').value = '';
   renderFormRating();
@@ -866,6 +872,7 @@ function openEdit(id){
   document.getElementById('f-natural').value = p.all_natural===true?'yes':p.all_natural===false?'no':'';
   document.getElementById('f-price').value = p.price ?? '';
   document.getElementById('f-size').value = p.size_ml ?? '';
+  document.getElementById('f-nose').value = p.nose||'';
   document.getElementById('f-acquired').value = p.acquired||'';
   document.getElementById('f-notes').value = p.notes_raw||'';
   document.getElementById('f-thoughts').value = p.thoughts||'';
@@ -887,6 +894,7 @@ function savePerfume(){
     status,
     price: priceV==='' ? null : parseFloat(priceV),
     size_ml: sizeV==='' ? null : parseFloat(sizeV),
+    nose: document.getElementById('f-nose').value.trim(),
     acquired: document.getElementById('f-acquired').value.trim(),
     rating: _formRating,
     notes_raw: document.getElementById('f-notes').value.trim(),

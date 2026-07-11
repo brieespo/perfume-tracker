@@ -41,6 +41,7 @@ Each perfume object:
   id: 1,
   name: "John Frume",
   house: "Aether Arts",
+  nose: "Amber Jobin",           // the perfumer, optional
   status: "owned",            // 'owned' | 'sampled' | 'sold' | 'to_try' | 'finished'
   price: 58.00,               // number or null
   size_ml: 5.5,               // number or null
