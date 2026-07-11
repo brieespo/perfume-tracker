@@ -171,3 +171,15 @@ CSV columns: `name, house, status, price, size_ml, acquired, rating, notes_raw, 
 1. Reuse the dinner-planner Supabase project (new table) or a fresh project?
 2. Half-star rating scale 0.5–5 assumed; confirm.
 3. During CSV import review, some rows in `status: sold` may really be `finished` — the import UI could ask, or Bri can fix statuses one-tap afterward.
+
+## Design language (suite-wide rules)
+
+- **No emoji in UI chrome.** Buttons, menus, headers, tab labels use inline SVG line icons (Lucide/Feather style, open-licensed, pasted as inline <svg> with stroke="currentColor" so they tint via CSS variables). No icon library or CDN.
+- **Status markers are CSS dots/chips** in the theme palette, never colored emoji.
+- **One identity mark**: a single logo glyph in the header is the only decorative one on screen.
+- Emoji is allowed in user-defined content (tags, notes) — data, not chrome.
+- Warmth via accent colors, rounded cards, micro-copy voice — not decoration.
+
+## Model escalation
+
+If a task appears to exceed your ability — a fix has failed twice, architectural uncertainty, or a risky data-model change — say so explicitly and recommend rerunning on a more capable model (/model fable) instead of continuing to attempt it.
