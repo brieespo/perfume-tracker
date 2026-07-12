@@ -42,6 +42,8 @@ Each perfume object:
   name: "John Frume",
   house: "Aether Arts",
   nose: "Amber Jobin",           // the perfumer, optional
+  season: "fall",                // 'spring' | 'summer' | 'fall' | 'winter' | null
+  daynight: "night",             // 'day' | 'night' | null
   status: "owned",            // 'owned' | 'sampled' | 'sold' | 'to_try' | 'finished'
   price: 58.00,               // number or null
   size_ml: 5.5,               // number or null

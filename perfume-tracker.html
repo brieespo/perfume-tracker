@@ -4,16 +4,16 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Perfume Tracker</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237f4a72' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='1' y='1' width='22' height='22' rx='5' fill='%23ffffff'/><rect x='6.8' y='12.2' width='8.6' height='9.6' rx='2.2'/><path d='M9.6 12.2v-1.7a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.7'/><path d='M9 10.5h4.2' stroke-width='1.9'/><path d='M12.7 9.3c.6-1.7 2.1-3 3.9-3.5'/><circle cx='17.9' cy='4.9' r='2.3'/><path d='M9.2 16.6h4.8'/></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23463a32' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='1' y='1' width='22' height='22' rx='5' fill='%23ffffff'/><rect x='6.8' y='12.2' width='8.6' height='9.6' rx='2.2'/><path d='M9.6 12.2v-1.7a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.7'/><path d='M9 10.5h4.2' stroke-width='1.9'/><path d='M12.7 9.5c.5-1.4 1.5-2.6 2.8-3.2'/><circle cx='16.4' cy='5.7' r='2.7'/><path d='M9.2 16.6h4.8'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#faf7fb;--card:#fff;--accent:#7f4a72;--accent-light:#f3e7f0;--sand:#e7dbe6;--text:#2c2530;--muted:#7a6b7e;--border:#e2d5e4;
+:root{--bg:#fbfaf8;--card:#fff;--accent:#463a32;--accent-light:#ece7e2;--sand:#e0d9d1;--text:#2c2530;--muted:#6b5d52;--border:#ddd4cb;
 --owned:#2b8a3e;--owned-bg:#eaf7ed;--sampled:#1d6f8c;--sampled-bg:#e0f1f5;--finished:#9a6f20;--finished-bg:#faf0d7;--sold:#8a4a4a;--sold-bg:#f7e8e8;--to_try:#5f3dc4;--to_try-bg:#ece7fb;--star:#e6a817;--star-empty:#ddd4de}
-:root[data-theme="iso"]{--bg:#fbfbfa;--accent:#3c3c39;--accent-light:#eeeeeb;--sand:#e4e4e0;--muted:#72726d;--border:#dcdcd7}
+:root[data-theme="plum"]{--bg:#faf7fb;--accent:#7f4a72;--accent-light:#f3e7f0;--sand:#e7dbe6;--muted:#7a6b7e;--border:#e2d5e4}
 :root[data-theme="tuberose"]{--bg:#fbfaf7;--accent:#d9d2c0;--accent-light:#ece4d2;--sand:#e6e4dc;--muted:#756d5a;--border:#e2e0d6;--accent-ink:#2c2530;--accent-text:#756345}
 :root[data-theme="tuberose"] header,:root[data-theme="tuberose"] .btn-accent,:root[data-theme="tuberose"] .btn-cta,:root[data-theme="tuberose"] .tab.active,:root[data-theme="tuberose"] .flow-btn.on,:root[data-theme="tuberose"] .lvl-btn.active{color:var(--accent-ink);text-shadow:none}
 :root[data-theme="tuberose"] #user-info,:root[data-theme="tuberose"] #user-info .ui-sub a{color:var(--accent-ink)}
@@ -213,7 +213,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 <body>
 <div id="auth-overlay">
   <div class="auth-box">
-    <div class="auth-logo"><svg class="logo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.8" y="12.2" width="8.6" height="9.6" rx="2.2"/><path d="M9.6 12.2v-1.7a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.7"/><path d="M9 10.5h4.2" stroke-width="1.9"/><path d="M12.7 9.3c.6-1.7 2.1-3 3.9-3.5"/><circle cx="17.9" cy="4.9" r="2.3"/><path d="M9.2 16.6h4.8"/></svg></div>
+    <div class="auth-logo"><svg class="logo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.8" y="12.2" width="8.6" height="9.6" rx="2.2"/><path d="M9.6 12.2v-1.7a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.7"/><path d="M9 10.5h4.2" stroke-width="1.9"/><path d="M12.7 9.5c.5-1.4 1.5-2.6 2.8-3.2"/><circle cx="16.4" cy="5.7" r="2.7"/><path d="M9.2 16.6h4.8"/></svg></div>
     <h2>Perfume Tracker</h2>
     <p class="auth-sub" id="auth-subtitle">Sign in to access your collection</p>
     <div class="auth-field">
@@ -243,7 +243,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 </div>
 
 <header>
-  <div><h1><svg class="logo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.8" y="12.2" width="8.6" height="9.6" rx="2.2"/><path d="M9.6 12.2v-1.7a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.7"/><path d="M9 10.5h4.2" stroke-width="1.9"/><path d="M12.7 9.3c.6-1.7 2.1-3 3.9-3.5"/><circle cx="17.9" cy="4.9" r="2.3"/><path d="M9.2 16.6h4.8"/></svg> Perfume Tracker</h1></div>
+  <div><h1><svg class="logo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6.8" y="12.2" width="8.6" height="9.6" rx="2.2"/><path d="M9.6 12.2v-1.7a1 1 0 0 1 1-1h1.6a1 1 0 0 1 1 1v1.7"/><path d="M9 10.5h4.2" stroke-width="1.9"/><path d="M12.7 9.5c.5-1.4 1.5-2.6 2.8-3.2"/><circle cx="16.4" cy="5.7" r="2.7"/><path d="M9.2 16.6h4.8"/></svg> Perfume Tracker</h1></div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">
     <div id="user-info" style="display:none">
       <div class="ui-welcome">Welcome!</div>
@@ -344,6 +344,14 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
       <div class="field-row">
         <div class="field"><label>Perfumer</label><input id="f-nose" placeholder="e.g. Hiram Green"></div>
         <div class="field"><label>Where / when acquired</label><input id="f-acquired" placeholder="e.g. American Perfumer - 2019"></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label>Season</label>
+          <select id="f-season"><option value="">Not set</option><option value="spring">Spring</option><option value="summer">Summer</option><option value="fall">Fall</option><option value="winter">Winter</option></select>
+        </div>
+        <div class="field"><label>Day / Night</label>
+          <select id="f-daynight"><option value="">Not set</option><option value="day">Day</option><option value="night">Night</option></select>
+        </div>
       </div>
       <div class="field"><label>Notes (paste from the perfume's listing)</label><textarea id="f-notes" placeholder="Lime & coconut water, guava, vetiver…" oninput="editNotesInput()"></textarea>
         <div class="chip-strip" id="f-notes-chips"></div></div>
@@ -471,8 +479,8 @@ const FLOWS = {
   sold:     [{to:'owned',   label:ico('undo')+' Back in collection'}]
 };
 const THEMES = [
-  {id:'',          name:'Plum (default)', dots:['#7f4a72','#f3e7f0','#faf7fb']},
-  {id:'iso',       name:'ISO Super E',    dots:['#3c3c39','#eeeeeb','#fbfbfa']},
+  {id:'',          name:'ISO Super E (default)', dots:['#463a32','#ece7e2','#fbfaf8']},
+  {id:'plum',      name:'Plum',           dots:['#7f4a72','#f3e7f0','#faf7fb']},
   {id:'tuberose',  name:'Tuberose',       dots:['#d9d2c0','#efefef','#fbfaf7']},
   {id:'hibiscus',  name:'Hibiscus',       dots:['#a13e5c','#f7e5ea','#fcf7f7']},
   {id:'tea',       name:'Tea Leaves',     dots:['#51663c','#eaf0dd','#f9faf4']},
@@ -903,6 +911,8 @@ function openAdd(){
   ['f-name','f-house','f-nose','f-price','f-size','f-acquired','f-notes','f-thoughts','f-desc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-status').value = 'to_try';
   document.getElementById('f-natural').value = '';
+  document.getElementById('f-season').value = '';
+  document.getElementById('f-daynight').value = '';
   renderFormRating();
   renderEditChips();
   openModal('perfume-modal');
@@ -921,6 +931,8 @@ function openEdit(id){
   document.getElementById('f-size').value = p.size_ml ?? '';
   document.getElementById('f-nose').value = p.nose||'';
   document.getElementById('f-acquired').value = p.acquired||'';
+  document.getElementById('f-season').value = p.season||'';
+  document.getElementById('f-daynight').value = p.daynight||'';
   document.getElementById('f-notes').value = p.notes_raw||'';
   document.getElementById('f-thoughts').value = p.thoughts||'';
   document.getElementById('f-desc').value = p.description||'';
@@ -943,6 +955,8 @@ function savePerfume(){
     size_ml: sizeV==='' ? null : parseFloat(sizeV),
     nose: document.getElementById('f-nose').value.trim(),
     acquired: document.getElementById('f-acquired').value.trim(),
+    season: document.getElementById('f-season').value || null,
+    daynight: document.getElementById('f-daynight').value || null,
     rating: _formRating,
     notes_raw: document.getElementById('f-notes').value.trim(),
     thoughts: document.getElementById('f-thoughts').value.trim(),
