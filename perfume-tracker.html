@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Perfume Tracker</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌸</text></svg>">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237f4a72' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><rect x='1' y='1' width='22' height='22' rx='5' fill='%23ffffff'/><rect x='7' y='9' width='10' height='12' rx='2'/><rect x='10' y='4' width='4' height='5' rx='1'/><path d='M9 2h6'/><path d='m17 8 2-2'/><path d='m7 8-2-2'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
@@ -31,6 +31,7 @@ header h1{font-family:'DM Serif Display',Georgia,serif;font-size:2.35rem;font-we
 header p{font-family:'DM Serif Display',Georgia,serif;font-style:italic;font-size:1rem;opacity:.9;letter-spacing:.02em;margin-top:.1rem}
 .btn{padding:.45rem 1.1rem;border:none;border-radius:8px;font-size:.875rem;font-weight:600;cursor:pointer;transition:opacity .15s;font-family:inherit}
 .btn:hover{opacity:.88}
+.ico{width:1em;height:1em;vertical-align:-.125em;flex-shrink:0}
 .btn-accent{background:var(--accent);color:#fff}
 .btn-outline{background:transparent;color:#fff;border:1.5px solid rgba(255,255,255,.5)}
 .btn-cta{background:linear-gradient(180deg,rgba(255,255,255,.14),rgba(255,255,255,.03));color:#fff;border:1px solid rgba(255,255,255,.4);box-shadow:0 2px 0 rgba(0,0,0,.25),0 3px 7px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.4);text-shadow:0 1px 1px rgba(0,0,0,.2);transition:transform .08s,box-shadow .08s,opacity .15s}
@@ -86,7 +87,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 .pcard-notes{font-size:.82rem;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pcard-thoughts{font-size:.82rem;color:var(--muted);font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .pcard-actions{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:auto;padding-top:.5rem}
-.flow-btn{background:var(--accent-light);color:var(--accent);border:none;padding:.3rem .7rem;font-size:.76rem;border-radius:6px;font-weight:600;cursor:pointer;font-family:inherit}
+.flow-btn{display:inline-flex;align-items:center;gap:.35rem;background:var(--accent-light);color:var(--accent);border:none;padding:.3rem .7rem;font-size:.76rem;border-radius:6px;font-weight:600;cursor:pointer;font-family:inherit}
 .flow-btn:hover{opacity:.85}
 .no-results{color:var(--muted);font-size:.95rem;padding:2rem 0;text-align:center}
 /* Modal */
@@ -129,7 +130,9 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 #auth-overlay.hidden{display:none}
 .auth-box{background:var(--card);border-radius:20px;padding:2.5rem 2.25rem;width:100%;max-width:400px;box-shadow:0 2px 6px rgba(44,40,37,.05),0 16px 44px rgba(44,40,37,.13);animation:riseIn .4s ease both}
 @keyframes riseIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.auth-logo{font-size:2.6rem;text-align:center;margin-bottom:.35rem;line-height:1}
+.auth-logo{text-align:center;margin-bottom:.35rem;line-height:1}
+.logo-mark{width:1.4em;height:1.4em;vertical-align:-.28em;flex-shrink:0}
+.auth-logo .logo-mark{width:2.6rem;height:2.6rem;color:var(--accent);vertical-align:0}
 .auth-box h2{font-family:'DM Serif Display',Georgia,serif;font-size:1.9rem;font-weight:400;margin-bottom:.15rem;color:var(--accent);text-align:center}
 .auth-tagline{font-family:'DM Serif Display',Georgia,serif;font-style:italic;font-size:.95rem;color:var(--accent);opacity:.7;text-align:center;margin-bottom:1.2rem}
 .auth-box .auth-sub{font-size:.85rem;color:var(--muted);text-align:center;margin-bottom:1.5rem}
@@ -145,7 +148,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 .auth-toggle{text-align:center;margin-top:1rem;font-size:.83rem;color:var(--muted)}
 .auth-toggle a{color:var(--accent);cursor:pointer;text-decoration:underline}
 /* Note chips & review (Phase 2) */
-.review-btn{background:var(--accent-light);color:var(--accent);border:1.5px solid var(--sand);padding:.4rem .95rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
+.review-btn{display:inline-flex;align-items:center;gap:.4rem;background:var(--accent-light);color:var(--accent);border:1.5px solid var(--sand);padding:.4rem .95rem;border-radius:999px;font-size:.85rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap}
 .review-btn:hover{border-color:var(--accent)}
 .chip-strip{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem;min-height:1.4rem}
 .nchip{display:inline-flex;align-items:center;gap:.35rem;max-width:100%;padding:.18rem .6rem;border-radius:999px;font-size:.78rem;font-weight:600;background:var(--owned-bg);color:var(--owned);border:1px solid transparent}
@@ -166,6 +169,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 .res-item{display:flex;align-items:center;justify-content:space-between;gap:.6rem;width:100%;padding:.5rem .7rem;border:1px solid var(--border);border-radius:8px;background:#fff;cursor:pointer;font-family:inherit;font-size:.87rem;margin-bottom:.35rem;text-align:left;color:var(--text)}
 .res-item:hover{border-color:var(--accent);background:var(--accent-light)}
 .res-item .fam{font-size:.72rem;color:var(--muted);white-space:nowrap}
+.custom-mark{font-size:.68rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin-left:.3rem}
 /* My Notes screen (Phase 3) */
 .profile-line{font-family:'DM Serif Display',Georgia,serif;font-size:1.55rem;line-height:1.35;margin:0 0 1.4rem;max-width:46rem}
 .profile-line strong{color:var(--accent);font-weight:400}
@@ -204,7 +208,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 <body>
 <div id="auth-overlay">
   <div class="auth-box">
-    <div class="auth-logo">🌸</div>
+    <div class="auth-logo"><svg class="logo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="9" width="10" height="12" rx="2"/><rect x="10" y="4" width="4" height="5" rx="1"/><path d="M9 2h6"/><path d="m17 8 2-2"/><path d="m7 8-2-2"/></svg></div>
     <h2>Perfume Tracker</h2>
     <p class="auth-sub" id="auth-subtitle">Sign in to access your collection</p>
     <div class="auth-field">
@@ -234,7 +238,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 </div>
 
 <header>
-  <div><h1>🌸 Perfume Tracker</h1></div>
+  <div><h1><svg class="logo-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="7" y="9" width="10" height="12" rx="2"/><rect x="10" y="4" width="4" height="5" rx="1"/><path d="M9 2h6"/><path d="m17 8 2-2"/><path d="m7 8-2-2"/></svg> Perfume Tracker</h1></div>
   <div style="display:flex;flex-direction:column;align-items:flex-end;gap:.35rem">
     <div id="user-info" style="display:none">
       <div class="ui-welcome">Welcome!</div>
@@ -245,13 +249,13 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
       <button class="btn btn-outline" id="nav-notes" onclick="showScreen('notes')">My Notes</button>
       <button class="btn btn-cta" onclick="openAdd()">+ Add Perfume</button>
       <div class="more-menu" id="more-menu">
-        <button class="btn btn-outline" onclick="toggleMoreMenu()">⋯ More</button>
+        <button class="btn btn-outline" data-ico="dots" onclick="toggleMoreMenu()"> More</button>
         <div class="more-menu-panel" id="more-menu-panel">
-          <button class="more-menu-item" onclick="closeMoreMenu();importCSV()">📥 Import from CSV</button>
-          <button class="more-menu-item" onclick="closeMoreMenu();exportJSON()">⬇ Export Data (JSON)</button>
+          <button class="more-menu-item" data-ico="upload" onclick="closeMoreMenu();importCSV()">Import from CSV</button>
+          <button class="more-menu-item" data-ico="download" onclick="closeMoreMenu();exportJSON()">Export Data (JSON)</button>
           <div class="more-menu-divider"></div>
-          <button class="more-menu-item" onclick="closeMoreMenu();openModal('theme-modal')">🎨 Color Theme</button>
-          <button class="more-menu-item" onclick="closeMoreMenu();openModal('help-modal')">❓ How To Use</button>
+          <button class="more-menu-item" data-ico="palette" onclick="closeMoreMenu();openModal('theme-modal')">Color Theme</button>
+          <button class="more-menu-item" data-ico="help" onclick="closeMoreMenu();openModal('help-modal')">How To Use</button>
         </div>
       </div>
     </div>
@@ -261,13 +265,13 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 <main>
 <div id="collection-section">
   <div id="empty-banner" class="hidden">
-    <p>Your collection is empty. <span>Import your spreadsheet data from the ⋯ More menu, or add your first perfume.</span></p>
+    <p>Your collection is empty. <span>Import your spreadsheet data from the More menu, or add your first perfume.</span></p>
     <button class="btn btn-accent" onclick="importCSV()">Import from CSV</button>
   </div>
   <div class="toolbar">
     <div class="tab-strip" id="tab-strip"></div>
     <input id="search-box" type="search" placeholder="Search name, house, notes…" oninput="render()">
-    <button class="review-btn" id="review-btn" style="display:none" onclick="openReview()">📝 Review notes <span id="review-count"></span></button>
+    <button class="review-btn" id="review-btn" data-ico="clipboard" style="display:none" onclick="openReview()">Review notes <span id="review-count"></span></button>
   </div>
   <div class="pgrid" id="pgrid"></div>
   <div class="no-results" id="no-results" style="display:none"></div>
@@ -277,12 +281,12 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
   <div class="profile-line" id="profile-line"></div>
   <div id="chart-unrev" class="chart-unrev" style="display:none">
     <span id="chart-unrev-text"></span>
-    <button class="review-btn" onclick="openReview()">📝 Review now</button>
+    <button class="review-btn" data-ico="clipboard" onclick="openReview()">Review now</button>
   </div>
   <div class="chart-controls">
     <select id="chart-view" onchange="renderNotesScreen()">
       <option value="loved">Owned + Finished — what I love</option>
-      <option value="pref">Preference score ✨</option>
+      <option value="pref">Preference score</option>
       <option value="owned">Owned</option>
       <option value="finished">Finished</option>
       <option value="sampled">Sampling</option>
@@ -304,7 +308,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 <!-- Add / Edit modal -->
 <div class="modal-bg" id="perfume-modal">
   <div class="modal">
-    <div class="modal-head"><strong id="pm-title">Add Perfume</strong><button class="modal-x" onclick="closeModal('perfume-modal')">✕</button></div>
+    <div class="modal-head"><strong id="pm-title">Add Perfume</strong><button class="modal-x" data-ico="x" aria-label="Close" onclick="closeModal('perfume-modal')"></button></div>
     <div class="modal-body">
       <div class="field-row">
         <div class="field"><label>Name *</label><input id="f-name" placeholder="e.g. Slowdive"></div>
@@ -321,7 +325,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
           </select>
         </div>
         <div class="field"><label>All natural?</label>
-          <select id="f-natural"><option value="">Not sure</option><option value="yes">Yes 🌿</option><option value="no">No</option></select>
+          <select id="f-natural"><option value="">Not sure</option><option value="yes">Yes</option><option value="no">No</option></select>
         </div>
       </div>
       <div class="field"><label>Rating</label>
@@ -351,7 +355,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 <!-- Theme modal -->
 <div class="modal-bg" id="theme-modal">
   <div class="modal" style="max-width:380px">
-    <div class="modal-head"><strong>Color Theme</strong><button class="modal-x" onclick="closeModal('theme-modal')">✕</button></div>
+    <div class="modal-head"><strong>Color Theme</strong><button class="modal-x" data-ico="x" aria-label="Close" onclick="closeModal('theme-modal')"></button></div>
     <div class="modal-body" id="theme-body"></div>
   </div>
 </div>
@@ -359,18 +363,18 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 <!-- Help modal -->
 <div class="modal-bg" id="help-modal">
   <div class="modal" style="max-width:640px">
-    <div class="modal-head"><strong>How To Use</strong><button class="modal-x" onclick="closeModal('help-modal')">✕</button></div>
+    <div class="modal-head"><strong>How To Use</strong><button class="modal-x" data-ico="x" aria-label="Close" onclick="closeModal('help-modal')"></button></div>
     <div class="modal-body">
       <div class="help-section"><h3>One list, five statuses</h3>
-        <p>Every perfume lives on one list and moves through statuses: <strong>To Try → Sampling → Owned → Finished or Sold</strong>. Use the buttons on each card to change status with one tap — no re-entering data, ever. <em>Finished</em> means you used it all up because you loved it; <em>Sold</em> means it wasn't for you. While sampling, tap <strong>💜 FS-worthy</strong> to flag a sample you'd buy a full size of.</p></div>
+        <p>Every perfume lives on one list and moves through statuses: <strong>To Try → Sampling → Owned → Finished or Sold</strong>. Use the buttons on each card to change status with one tap — no re-entering data, ever. <em>Finished</em> means you used it all up because you loved it; <em>Sold</em> means it wasn't for you. While sampling, tap <strong>FS-worthy</strong> to flag a sample you'd buy a full size of.</p></div>
       <div class="help-section"><h3>Ratings</h3>
         <p>Tap the stars in the add/edit form — left half of a star for a half step. Ratings are always stored as real numbers (0.5–5), so nothing can ever turn into a date again.</p></div>
       <div class="help-section"><h3>Notes</h3>
         <p>Paste the notes text straight from the perfume's listing — it's kept exactly as you pasted it, and the app also parses it into structured notes (shown as chips under the paste box). Anything it doesn't recognize appears as an amber chip: tap it to assign it to an existing note, create a new one, or discard it. The app remembers your answer, so the same phrasing never asks twice.</p></div>
       <div class="help-section"><h3>My Notes — charts &amp; your scent profile</h3>
-        <p>The <strong>My Notes</strong> screen charts which notes show up in your collection. The dropdown picks the view — <em>Owned + Finished</em> is "what I actually love," and <em>Preference score ✨</em> weighs everything: finished ×3, owned ×2, loved samples (rated 4★+ or FS-worthy) ×1, sold −1. Plain samples don't count — sniffing something isn't loving it. Toggle between individual notes and families, and hover a bar to see which perfumes are behind it. The line at the top is your scent profile — it recomputes live as your collection changes.</p></div>
+        <p>The <strong>My Notes</strong> screen charts which notes show up in your collection. The dropdown picks the view — <em>Owned + Finished</em> is "what I actually love," and <em>Preference score</em> weighs everything: finished ×3, owned ×2, loved samples (rated 4+ stars or FS-worthy) ×1, sold −1. Plain samples don't count — sniffing something isn't loving it. Toggle between individual notes and families, and hover a bar to see which perfumes are behind it. The line at the top is your scent profile — it recomputes live as your collection changes.</p></div>
       <div class="help-section"><h3>Review queue</h3>
-        <p>The <strong>📝 Review notes</strong> button lists perfumes whose pasted notes haven't been confirmed yet (like everything from the spreadsheet import). Each one shows what the parser found — usually you just glance and tap <strong>✓ Looks right</strong>. Perfumes only count in the upcoming charts once reviewed, but nothing else waits on it.</p></div>
+        <p>The <strong>Review notes</strong> button lists perfumes whose pasted notes haven't been confirmed yet (like everything from the spreadsheet import). Each one shows what the parser found — usually you just glance and tap <strong>Looks right</strong>. Perfumes only count in the upcoming charts once reviewed, but nothing else waits on it.</p></div>
       <div class="help-section"><h3>Import &amp; export</h3>
         <ul><li><strong>Import from CSV</strong> loads the spreadsheet data that ships with the app (one-time).</li>
         <li><strong>Export Data</strong> downloads your whole collection as JSON for safekeeping.</li></ul></div>
@@ -381,7 +385,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 <!-- Review queue modal -->
 <div class="modal-bg" id="review-modal">
   <div class="modal" style="max-width:600px">
-    <div class="modal-head"><strong>Review Notes</strong><span class="review-progress" id="rev-progress"></span><button class="modal-x" onclick="closeModal('review-modal')">✕</button></div>
+    <div class="modal-head"><strong>Review Notes</strong><span class="review-progress" id="rev-progress"></span><button class="modal-x" data-ico="x" aria-label="Close" onclick="closeModal('review-modal')"></button></div>
     <div class="modal-body">
       <div class="review-pname" id="rev-name"></div>
       <div class="review-phouse" id="rev-house"></div>
@@ -394,7 +398,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
     </div>
     <div class="modal-foot">
       <button class="btn btn-ghost" onclick="revSkip()">Skip for now</button>
-      <button class="btn btn-accent" onclick="revDone()">✓ Looks right</button>
+      <button class="btn btn-accent" data-ico="check" onclick="revDone()">Looks right</button>
     </div>
   </div>
 </div>
@@ -402,7 +406,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 <!-- Note resolver modal (stacks above review/edit) -->
 <div class="modal-bg" id="resolve-modal" style="z-index:300">
   <div class="modal" style="max-width:440px">
-    <div class="modal-head"><strong id="res-title">Assign note</strong><button class="modal-x" onclick="closeModal('resolve-modal')">✕</button></div>
+    <div class="modal-head"><strong id="res-title">Assign note</strong><button class="modal-x" data-ico="x" aria-label="Close" onclick="closeModal('resolve-modal')"></button></div>
     <div class="modal-body">
       <div class="field" style="margin-bottom:.4rem"><input id="res-search" placeholder="Search notes…" oninput="renderResList()"></div>
       <div class="res-list" id="res-list"></div>
@@ -413,13 +417,36 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
       </div>
       <div style="display:flex;gap:.6rem;flex-wrap:wrap">
         <button class="btn btn-accent" onclick="resCreate()">＋ Create &amp; assign</button>
-        <button class="btn btn-ghost" id="res-discard" onclick="resDiscard()">🗑 Not a note — discard</button>
+        <button class="btn btn-ghost" id="res-discard" data-ico="trash" onclick="resDiscard()">Not a note — discard</button>
       </div>
     </div>
   </div>
 </div>
 
 <script>
+// ---- ICONS ----
+// Inline Lucide-style line icons (ISC-licensed shapes); stroke:currentColor so they
+// tint with the theme. 'release', 'bag', 'droplet' etc. hand-matched to Feather set.
+const ICONS = {
+  download:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
+  upload:'<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>',
+  palette:'<circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>',
+  help:'<circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>',
+  x:'<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+  check:'<path d="M20 6 9 17l-5-5"/>',
+  undo:'<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
+  trash:'<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>',
+  clipboard:'<rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>',
+  dots:'<circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>',
+  leaf:'<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/>',
+  bag:'<path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/>',
+  release:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
+  award:'<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
+  droplet:'<path d="M12 2.69 17.66 8.35a8 8 0 1 1-11.31 0z"/>',
+  heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>'
+};
+const ico = n => `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+
 // ---- CONSTANTS ----
 const STATUS = {
   owned:    {label:'Owned',    tab:'Owned'},
@@ -430,11 +457,11 @@ const STATUS = {
 };
 const TAB_ORDER = ['owned','sampled','finished','sold','to_try','all'];
 const FLOWS = {
-  to_try:   [{to:'sampled', label:'🧪 Sampled it'}, {to:'owned', label:'🛍 Bought it!'}],
-  sampled:  [{to:'owned',   label:'🛍 Bought it!'}, {fs:true}, {to:'sold', label:'👋 Let it go'}],
-  owned:    [{to:'finished',label:'🏆 Finished it'},{to:'sold',  label:'👋 Sold it'}],
-  finished: [{to:'owned',   label:'↩ Bought it again'}],
-  sold:     [{to:'owned',   label:'↩ Back in collection'}]
+  to_try:   [{to:'sampled', label:ico('droplet')+' Sampled it'}, {to:'owned', label:ico('bag')+' Bought it!'}],
+  sampled:  [{to:'owned',   label:ico('bag')+' Bought it!'}, {fs:true}, {to:'sold', label:ico('release')+' Let it go'}],
+  owned:    [{to:'finished',label:ico('award')+' Finished it'},{to:'sold',  label:ico('release')+' Sold it'}],
+  finished: [{to:'owned',   label:ico('undo')+' Bought it again'}],
+  sold:     [{to:'owned',   label:ico('undo')+' Back in collection'}]
 };
 const THEMES = [
   {id:'',          name:'Plum (default)', dots:['#7f4a72','#f3e7f0','#faf7fb']},
@@ -706,7 +733,7 @@ function renderNotesScreen(){
   // chart
   const view = document.getElementById('chart-view').value;
   document.getElementById('chart-caption').textContent = view==='pref'
-    ? 'finished ×3 · owned ×2 · loved samples (4★+ or FS-worthy) ×1 · sold −1' : '';
+    ? 'finished ×3 · owned ×2 · loved samples (4+ stars or FS-worthy) ×1 · sold −1' : '';
   const counts = chartCounts(view, _chartLevel);
   let rows = Object.entries(counts).sort((a,b) => b[1].v - a[1].v);
   const chart = document.getElementById('bar-chart');
@@ -820,9 +847,9 @@ function cardHTML(p){
   if(p.size_ml) meta.push(`${p.size_ml} ml`);
   if(p.price!=null) meta.push(`$${p.price.toFixed(2)}`);
   const ppm = perMl(p); if(ppm) meta.push(ppm);
-  if(p.all_natural===true) meta.push('🌿 all natural');
+  if(p.all_natural===true) meta.push(ico('leaf')+' all natural');
   const flows = (FLOWS[p.status]||[]).map(f => f.fs
-    ? `<button class="flow-btn${p.fs_wish?' on':''}" onclick="event.stopPropagation();toggleFS(${p.id})">${p.fs_wish?'💜 FS-worthy ✓':'💜 FS-worthy'}</button>`
+    ? `<button class="flow-btn${p.fs_wish?' on':''}" onclick="event.stopPropagation();toggleFS(${p.id})">${ico('heart')} FS-worthy</button>`
     : `<button class="flow-btn" onclick="event.stopPropagation();setStatus(${p.id},'${f.to}')">${f.label}</button>`).join('');
   const noteBits = (p.notes_reviewed && p.notes?.length)
     ? `<div>${p.notes.slice(0,6).map(id=>`<span class="pcard-note-chip">${esc(noteName(id))}</span>`).join('')}${p.notes.length>6?`<span class="pcard-note-chip">+${p.notes.length-6}</span>`:''}</div>`
@@ -984,7 +1011,7 @@ function renderReview(){
   document.getElementById('rev-house').textContent = p.house||'';
   document.getElementById('rev-raw').textContent = p.notes_raw;
   document.getElementById('rev-matched').innerHTML = _revState.notes.length
-    ? _revState.notes.map(id=>`<span class="nchip">${esc(noteName(id))} <span class="fam">${esc(NOTE_BY_ID[id]?.family||'')}</span><span class="x" onclick="revRemove('${id}')">✕</span></span>`).join('')
+    ? _revState.notes.map(id=>`<span class="nchip">${esc(noteName(id))} <span class="fam">${esc(NOTE_BY_ID[id]?.family||'')}</span><span class="x" onclick="revRemove('${id}')">${ico('x')}</span></span>`).join('')
     : '<span style="font-size:.82rem;color:var(--muted)">nothing parsed yet</span>';
   const un = _revState.unmatched;
   document.getElementById('rev-un-label').style.display = un.length ? '' : 'none';
@@ -1031,7 +1058,7 @@ function renderResList(){
     .sort((a,b)=>a.name.localeCompare(b.name))
     .slice(0, 50);
   document.getElementById('res-list').innerHTML = all.map(n=>
-    `<button class="res-item" onclick="resAssign('${n.id}')"><span>${esc(n.name)}${n.custom?' ✦':''}</span><span class="fam">${esc(n.family)}</span></button>`).join('')
+    `<button class="res-item" onclick="resAssign('${n.id}')"><span>${esc(n.name)}${n.custom?' <span class="custom-mark">custom</span>':''}</span><span class="fam">${esc(n.family)}</span></button>`).join('')
     || '<div style="font-size:.85rem;color:var(--muted);padding:.5rem 0">No matches — create it below.</div>';
 }
 function resAssign(id){
@@ -1167,7 +1194,7 @@ async function importCSV(){
   if(P.length && !confirm(`You already have ${P.length} perfume${P.length!==1?'s':''}. Import will ADD ${items.length} more (it doesn't check for duplicates). Continue?`)) return;
   items.forEach(it => { it.id = nextId++; P.push(it); });
   saveToStorage(); _tab='all'; render();
-  alert(`✅ Imported ${items.length} perfumes!`);
+  alert(`Imported ${items.length} perfumes!`);
 }
 
 // ---- EXPORT ----
@@ -1212,7 +1239,7 @@ async function authSubmit(){
     ? await sb.auth.signInWithPassword({email,password:pass})
     : await sb.auth.signUp({email,password:pass});
   if(error){ errEl.textContent=error.message; errEl.className='auth-err err'; return; }
-  if(_authMode==='signup'&&!data.session){ errEl.textContent='✓ Check your email to confirm your account.'; errEl.className='auth-err ok'; return; }
+  if(_authMode==='signup'&&!data.session){ errEl.textContent='Check your email to confirm your account.'; errEl.className='auth-err ok'; return; }
   if(data.session) await handleAuthSession(data.session);
 }
 function loadRememberedEmail(){
@@ -1308,6 +1335,7 @@ function migrateParsedNotes(){
 }
 
 // ---- INIT ----
+document.querySelectorAll('[data-ico]').forEach(el => el.insertAdjacentHTML('afterbegin', ico(el.dataset.ico)));
 normalizeNoteMap();
 loadRememberedEmail();
 sb.auth.onAuthStateChange((_e, session) => { if(session) handleAuthSession(session); });
