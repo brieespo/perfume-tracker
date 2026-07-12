@@ -70,6 +70,11 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 .pcard{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:1.05rem 1.15rem;display:flex;flex-direction:column;gap:.35rem;cursor:pointer;box-shadow:0 1px 2px rgba(44,40,37,.04),0 4px 12px rgba(44,40,37,.05);transition:transform .2s ease,box-shadow .2s ease,border-color .15s}
 .pcard:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 10px 24px rgba(44,40,37,.1)}
 .pcard-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem}
+.pcard-top-right{display:flex;align-items:center;gap:.4rem}
+.fav-btn{background:none;border:none;cursor:pointer;padding:0;display:flex;color:var(--star-empty);transition:color .15s,transform .1s}
+.fav-btn:hover{color:var(--star);transform:scale(1.1)}
+.fav-btn.on{color:var(--star)}
+.fav-btn .ico{width:1.05em;height:1.05em}
 .chip{font-size:.68rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:.14rem .55rem;border-radius:999px}
 .chip-owned{background:var(--owned-bg);color:var(--owned)}
 .chip-sampled{background:var(--sampled-bg);color:var(--sampled)}
@@ -287,6 +292,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
     <select id="chart-view" onchange="renderNotesScreen()">
       <option value="loved">Owned + Finished — what I love</option>
       <option value="pref">Preference score</option>
+      <option value="favorites">Favorites</option>
       <option value="owned">Owned</option>
       <option value="finished">Finished</option>
       <option value="sampled">Sampling</option>
@@ -443,9 +449,10 @@ const ICONS = {
   release:'<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/>',
   award:'<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
   droplet:'<path d="M12 2.69 17.66 8.35a8 8 0 1 1-11.31 0z"/>',
-  heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>'
+  heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+  star:'<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>'
 };
-const ico = n => `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
+const ico = (n, filled) => `<svg class="ico" viewBox="0 0 24 24" fill="${filled?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
 
 // ---- CONSTANTS ----
 const STATUS = {
@@ -455,7 +462,7 @@ const STATUS = {
   sold:     {label:'Sold',     tab:'Sold'},
   to_try:   {label:'To Try',   tab:'To Try'}
 };
-const TAB_ORDER = ['owned','sampled','finished','sold','to_try','all'];
+const TAB_ORDER = ['owned','sampled','finished','sold','to_try','favorites','all'];
 const FLOWS = {
   to_try:   [{to:'sampled', label:ico('droplet')+' Sampled it'}, {to:'owned', label:ico('bag')+' Bought it!'}],
   sampled:  [{to:'owned',   label:ico('bag')+' Bought it!'}, {fs:true}, {to:'sold', label:ico('release')+' Let it go'}],
@@ -481,7 +488,7 @@ let P = [];            // perfumes
 let NOTE_MAP = {};     // alias map (Phase 2)
 let SETTINGS = {};
 let nextId = 1;
-let _tab = 'all';
+let _tab = 'owned';
 let _formRating = null;
 let _editingId = null;
 
@@ -701,7 +708,7 @@ function chartCounts(view, level){
     if(view==='pref'){ w = prefWeight(p); if(w===0) return; }
     else {
       const ok = view==='loved' ? (p.status==='owned'||p.status==='finished')
-        : view==='all' ? true : p.status===view;
+        : view==='all' ? true : view==='favorites' ? !!p.favorite : p.status===view;
       if(!ok) return;
       w = 1;
     }
@@ -813,16 +820,16 @@ function scentProfile(){
 function render(){
   const q = document.getElementById('search-box').value.trim().toLowerCase();
   // tabs
-  const counts = {all:P.length};
+  const counts = {all:P.length, favorites:P.filter(p=>p.favorite).length};
   Object.keys(STATUS).forEach(s => counts[s] = P.filter(p=>p.status===s).length);
   document.getElementById('tab-strip').innerHTML = TAB_ORDER.map(t=>{
-    const label = t==='all' ? 'All' : STATUS[t].tab;
+    const label = t==='all' ? 'All' : t==='favorites' ? ico('star')+' Favorites' : STATUS[t].tab;
     return `<button class="tab${_tab===t?' active':''}" onclick="setTab('${t}')">${label}<span class="cnt">${counts[t]}</span></button>`;
   }).join('');
   // banner
   document.getElementById('empty-banner').classList.toggle('hidden', P.length>0);
   // cards
-  let list = P.filter(p => _tab==='all' || p.status===_tab);
+  let list = P.filter(p => _tab==='all' || (_tab==='favorites' ? !!p.favorite : p.status===_tab));
   if(q) list = list.filter(p =>
     (p.name||'').toLowerCase().includes(q) ||
     (p.house||'').toLowerCase().includes(q) ||
@@ -856,7 +863,10 @@ function cardHTML(p){
     : p.notes_raw ? `<div class="pcard-notes">${esc(p.notes_raw)}</div>` : '';
   return `<div class="pcard" onclick="openEdit(${p.id})">
     <div class="pcard-top"><span class="chip chip-${p.status}">${STATUS[p.status]?.label||p.status}</span>
-      <span class="stars">${p.rating!=null ? starHTML(p.rating) : ''}</span></div>
+      <span class="pcard-top-right">
+        <button class="fav-btn${p.favorite?' on':''}" onclick="event.stopPropagation();toggleFavorite(${p.id})" aria-label="${p.favorite?'Remove from favorites':'Add to favorites'}">${ico('star', !!p.favorite)}</button>
+        <span class="stars">${p.rating!=null ? starHTML(p.rating) : ''}</span>
+      </span></div>
     <div class="pcard-name">${esc(p.name)}</div>
     ${p.house ? `<div class="pcard-house">${esc(p.house)}</div>` : ''}
     ${p.nose ? `<div class="pcard-nose">Perfumer: ${esc(p.nose)}</div>` : ''}
@@ -877,6 +887,11 @@ function setStatus(id, status){
 function toggleFS(id){
   const p = P.find(x=>x.id===id); if(!p) return;
   p.fs_wish = !p.fs_wish;
+  saveToStorage(); render();
+}
+function toggleFavorite(id){
+  const p = P.find(x=>x.id===id); if(!p) return;
+  p.favorite = !p.favorite;
   saveToStorage(); render();
 }
 
