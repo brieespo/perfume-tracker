@@ -814,8 +814,15 @@ function deleteWearEntry(id){
 function toggleWornToday(id){
   const t = today();
   const idx = WEAR.findIndex(w => w.perfume_id===id && w.date===t);
-  if(idx > -1) WEAR.splice(idx,1);
-  else WEAR.push({id: nextId++, perfume_id:id, date:t});
+  if(idx > -1){
+    // Removing already-logged data needs a confirm — adding it doesn't.
+    // A bare toggle here silently cancelled itself out on a second tap,
+    // which read as "I logged it and nothing saved."
+    if(!confirm("Remove today's wear log entry for this perfume?")) return;
+    WEAR.splice(idx,1);
+  } else {
+    WEAR.push({id: nextId++, perfume_id:id, date:t});
+  }
   saveToStorage(); render();
 }
 
@@ -988,7 +995,7 @@ function cardHTML(p){
     ? `<button class="flow-btn${p.fs_wish?' on':''}" onclick="event.stopPropagation();toggleFS(${p.id})">${ico('heart')} FS-worthy</button>`
     : `<button class="flow-btn" onclick="event.stopPropagation();setStatus(${p.id},'${f.to}')">${f.label}</button>`).join('');
   const wornToday = WEAR.some(w => w.perfume_id===p.id && w.date===today());
-  const wearBtn = `<button class="flow-btn${wornToday?' on':''}" onclick="event.stopPropagation();toggleWornToday(${p.id})">${ico('droplet')} Wearing today</button>`;
+  const wearBtn = `<button class="flow-btn${wornToday?' on':''}" onclick="event.stopPropagation();toggleWornToday(${p.id})">${wornToday?ico('check')+' Logged today':ico('droplet')+' Wearing today'}</button>`;
   const noteBits = (p.notes_reviewed && p.notes?.length)
     ? `<div>${p.notes.slice(0,6).map(id=>`<span class="pcard-note-chip">${esc(noteName(id))}</span>`).join('')}${p.notes.length>6?`<span class="pcard-note-chip">+${p.notes.length-6}</span>`:''}</div>`
     : p.notes_raw ? `<div class="pcard-notes">${esc(p.notes_raw)}</div>` : '';
