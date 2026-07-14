@@ -20,6 +20,7 @@ create table if not exists perfume_data (
   user_id uuid primary key references auth.users(id) on delete cascade,
   perfumes jsonb not null default '[]'::jsonb,
   note_map jsonb not null default '{}'::jsonb,
+  wear_log jsonb not null default '[]'::jsonb,
   settings jsonb not null default '{}'::jsonb,
   updated_at timestamptz default now()
 );
@@ -28,6 +29,12 @@ alter table perfume_data enable row level security;
 
 create policy "Users manage own perfume data" on perfume_data
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+```
+
+If you already have this table from before the wear log, just add the new column:
+
+```sql
+alter table perfume_data add column if not exists wear_log jsonb not null default '[]'::jsonb;
 ```
 
 One row per user; the whole collection syncs as jsonb blobs (~240 perfumes is tiny). Guest mode works without an account and stores data in localStorage only.
@@ -59,11 +66,18 @@ Each perfume object:
 }
 ```
 
+Wear log — a separate flat array, one entry per perfume worn per day:
+
+```js
+{ id: 1, perfume_id: 3, date: "2026-07-14" }
+```
+
 ## Roadmap
 
 Phase 1 (done): auth, CRUD, status tabs + one-tap status changes, search, star ratings, CSV import, JSON export, themes.
 Phase 2 (done): canonical note vocabulary (~170 notes, 11 families) + alias map, paste-parser with review chips, review queue, FS-worthy flag on samples.
 Phase 3 (done): My Notes screen — note/family frequency charts (pure CSS bars), preference-score view (finished ×3, owned ×2, loved samples ×1, sold −1), live scent-profile line.
 Phase 4: filters, price-per-ml sort, polish.
+Phase 5 (done): daily wear log — one-tap "Wearing today" toggle on each card, a Wear Log screen for the full history (grouped by date, with past-date entry and delete), synced like everything else. Data collection only for now; frequency tables (most-worn, by season/day-night) are future work once there's enough logged.
 
 See `CLAUDE.md` for the full plan.

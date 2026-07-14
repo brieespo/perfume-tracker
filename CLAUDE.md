@@ -37,6 +37,7 @@ Follow the dinner planner's pattern: one row per user in a `perfume_data` table 
 | user_id | uuid (PK, references auth) | |
 | perfumes | jsonb | array of perfume objects (below) |
 | note_map | jsonb | user's note alias map + custom canonical notes |
+| wear_log | jsonb | array of daily wear entries: `{id, perfume_id, date}` |
 | settings | jsonb | theme, default chart view, etc. |
 
 ~240 records is tiny; jsonb blobs synced whole (like dinner planner recipes) are fine. No need for relational tables.
@@ -66,6 +67,10 @@ Follow the dinner planner's pattern: one row per user in a `perfume_data` table 
 **Status is the core concept.** One list, five statuses, replacing four spreadsheet tabs. Changing status (to_try → sampled → owned → sold/finished) is one tap on the perfume card and appends to `history`. No data is ever re-entered.
 
 `finished` means used up because she loved it — the strongest possible endorsement. It is distinct from `sold` (rejected). Owned and finished perfumes both count as "loved" everywhere; finished counts *more* in preference scoring.
+
+### Wear log
+
+A flat, append-only log of daily wear, separate from `history` (which tracks lifecycle status changes, not day-to-day wear): `{id, perfume_id, date}`. One tap ("Wearing today") on any card logs today's date and toggles off again on a second tap; a dedicated Wear Log screen lists the full history grouped by date and lets you log a specific past date. This is data-collection only for now — no frequency analysis yet. The flat one-row-per-wear-per-day shape is deliberately simple so a future frequency breakdown (most-worn perfumes, by season/day-night, alongside the existing preference-score charts) is just a group-and-count away.
 
 ### Canonical note vocabulary
 

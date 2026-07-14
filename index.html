@@ -197,9 +197,25 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
 .bar-track.div::before{content:'';position:absolute;left:50%;top:-2px;bottom:-2px;width:1px;background:var(--border)}
 .bar-val{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .chart-empty{color:var(--muted);font-size:.95rem;padding:2rem 0}
+/* Wear log */
+.sec-title{font-family:'DM Serif Display',Georgia,serif;font-size:1.3rem;font-weight:400;margin:1.6rem 0 .9rem}
+.wear-quick{display:flex;gap:.75rem;align-items:flex-end;flex-wrap:wrap;margin-bottom:.5rem}
+.wear-quick .field{flex:1;min-width:180px;margin-bottom:0}
+.wear-quick .field.wear-date-field{flex:0 0 160px}
+.wear-date{font-weight:700;color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.05em;margin:1.1rem 0 .3rem}
+.wear-date:first-child{margin-top:0}
+.wear-row{display:flex;align-items:center;justify-content:space-between;gap:.6rem;padding:.5rem .7rem;border-bottom:1px solid var(--border);font-size:.88rem;border-radius:6px}
+.wear-row:hover{background:var(--accent-light)}
+.wear-row:last-child{border-bottom:none}
+.wear-house{color:var(--muted);font-size:.82rem;font-weight:400}
+.wear-x{background:none;border:none;color:var(--muted);cursor:pointer;flex-shrink:0;display:flex;padding:.2rem}
+.wear-x:hover{color:var(--sold)}
+.wear-empty{color:var(--muted);font-size:.9rem;padding:1.5rem 0;text-align:center}
 @media (max-width:640px){
   .bar-row{grid-template-columns:104px 1fr 44px}
   .profile-line{font-size:1.25rem}
+  .wear-quick{flex-direction:column;align-items:stretch}
+  .wear-quick .field.wear-date-field{flex:1}
 }
 @media (max-width:640px){
   header{padding:1rem 1.1rem}
@@ -252,6 +268,7 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
     <div style="display:flex;gap:.6rem;align-items:center;flex-wrap:wrap;justify-content:flex-end">
       <button class="btn btn-outline active" id="nav-collection" onclick="showScreen('collection')">Collection</button>
       <button class="btn btn-outline" id="nav-notes" onclick="showScreen('notes')">My Notes</button>
+      <button class="btn btn-outline" id="nav-wear" data-ico="calendar" onclick="showScreen('wear')"> Wear Log</button>
       <button class="btn btn-cta" onclick="openAdd()">+ Add Perfume</button>
       <div class="more-menu" id="more-menu">
         <button class="btn btn-outline" data-ico="dots" onclick="toggleMoreMenu()"> More</button>
@@ -308,6 +325,17 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
   <div class="chart-caption" id="chart-caption"></div>
   <div class="bar-chart" id="bar-chart"></div>
   <div style="margin-top:.8rem"><button class="btn btn-ghost" id="chart-more" style="display:none" onclick="toggleChartAll()"></button></div>
+</div>
+
+<div id="wear-section" style="display:none">
+  <div class="sec-title">What are you wearing today?</div>
+  <div class="wear-quick">
+    <div class="field"><label>Perfume</label><select id="wear-perfume"></select></div>
+    <div class="field wear-date-field"><label>Date</label><input id="wear-date" type="date"></div>
+    <button class="btn btn-accent" onclick="logWear()">Log it</button>
+  </div>
+  <div class="sec-title">Wear history</div>
+  <div id="wear-list"></div>
 </div>
 </main>
 
@@ -389,6 +417,8 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
         <p>The <strong>My Notes</strong> screen charts which notes show up in your collection. The dropdown picks the view — <em>Owned + Finished</em> is "what I actually love," and <em>Preference score</em> weighs everything: finished ×3, owned ×2, loved samples (rated 4+ stars or FS-worthy) ×1, sold −1. Plain samples don't count — sniffing something isn't loving it. Toggle between individual notes and families, and hover a bar to see which perfumes are behind it. The line at the top is your scent profile — it recomputes live as your collection changes.</p></div>
       <div class="help-section"><h3>Review queue</h3>
         <p>The <strong>Review notes</strong> button lists perfumes whose pasted notes haven't been confirmed yet (like everything from the spreadsheet import). Each one shows what the parser found — usually you just glance and tap <strong>Looks right</strong>. Perfumes only count in the upcoming charts once reviewed, but nothing else waits on it.</p></div>
+      <div class="help-section"><h3>Wear log</h3>
+        <p>Tap <strong>Wearing today</strong> on any card to log it for today — tap again to undo a mistake. The <strong>Wear Log</strong> tab lists everything you've logged, grouped by date, and lets you log a specific past date if you forgot to note something. It's just the raw log for now — frequency breakdowns (your most-worn perfumes, by season, by notes) are on the roadmap once there's enough data logged.</p></div>
       <div class="help-section"><h3>Import &amp; export</h3>
         <ul><li><strong>Import from CSV</strong> loads the spreadsheet data that ships with the app (one-time).</li>
         <li><strong>Export Data</strong> downloads your whole collection as JSON for safekeeping.</li></ul></div>
@@ -458,7 +488,8 @@ const ICONS = {
   award:'<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
   droplet:'<path d="M12 2.69 17.66 8.35a8 8 0 1 1-11.31 0z"/>',
   heart:'<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
-  star:'<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>'
+  star:'<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"/>',
+  calendar:'<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/>'
 };
 const ico = (n, filled) => `<svg class="ico" viewBox="0 0 24 24" fill="${filled?'currentColor':'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[n]}</svg>`;
 
@@ -494,6 +525,7 @@ const LEGACY_THEMES = {amber:'tobacco', rose:'hibiscus', ocean:'ambergris', gree
 // ---- STATE ----
 let P = [];            // perfumes
 let NOTE_MAP = {};     // alias map (Phase 2)
+let WEAR = [];         // daily wear log: [{id, perfume_id, date}]
 let SETTINGS = {};
 let nextId = 1;
 let _tab = 'owned';
@@ -687,9 +719,12 @@ function showScreen(s){
   _screen = s;
   document.getElementById('collection-section').style.display = s==='collection' ? '' : 'none';
   document.getElementById('notes-section').style.display = s==='notes' ? '' : 'none';
+  document.getElementById('wear-section').style.display = s==='wear' ? '' : 'none';
   document.getElementById('nav-collection').classList.toggle('active', s==='collection');
   document.getElementById('nav-notes').classList.toggle('active', s==='notes');
+  document.getElementById('nav-wear').classList.toggle('active', s==='wear');
   if(s==='notes') renderNotesScreen();
+  if(s==='wear') renderWearScreen();
 }
 function setChartLevel(l){
   _chartLevel = l; _chartAll = false;
@@ -698,6 +733,56 @@ function setChartLevel(l){
   renderNotesScreen();
 }
 function toggleChartAll(){ _chartAll = !_chartAll; renderNotesScreen(); }
+
+// ---- WEAR LOG ----
+function fmtWearDate(d){
+  if(!d) return '';
+  const [y,m,day] = d.split('-');
+  return `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]} ${+day}, ${y}`;
+}
+function renderWearScreen(){
+  const sel = document.getElementById('wear-perfume');
+  const sorted = P.slice().sort((a,b)=>(a.house||'').localeCompare(b.house||'')||a.name.localeCompare(b.name));
+  sel.innerHTML = sorted.length
+    ? sorted.map(p=>`<option value="${p.id}">${esc(p.house?`${p.house} — ${p.name}`:p.name)}</option>`).join('')
+    : '<option value="">Add a perfume first</option>';
+  document.getElementById('wear-date').value = today();
+  renderWearList();
+}
+function renderWearList(){
+  const box = document.getElementById('wear-list');
+  if(!WEAR.length){ box.innerHTML = '<div class="wear-empty">No wear history yet — log what you\'re wearing today above.</div>'; return; }
+  const sorted = WEAR.slice().sort((a,b) => b.date.localeCompare(a.date) || b.id-a.id);
+  let lastDate = null;
+  const rows = [];
+  sorted.forEach(w => {
+    const p = P.find(x=>x.id===w.perfume_id);
+    if(w.date !== lastDate){ rows.push(`<div class="wear-date">${fmtWearDate(w.date)}</div>`); lastDate = w.date; }
+    rows.push(`<div class="wear-row"><span>${esc(p?p.name:'(deleted perfume)')}${p&&p.house?` <span class="wear-house">${esc(p.house)}</span>`:''}</span>
+      <button class="wear-x" onclick="deleteWearEntry(${w.id})" title="Remove">${ico('x')}</button></div>`);
+  });
+  box.innerHTML = rows.join('');
+}
+function logWear(){
+  const perfumeId = +document.getElementById('wear-perfume').value;
+  const date = document.getElementById('wear-date').value || today();
+  if(!perfumeId) return;
+  if(WEAR.some(w => w.perfume_id===perfumeId && w.date===date)){ alert('Already logged for that date.'); return; }
+  WEAR.push({id: nextId++, perfume_id: perfumeId, date});
+  saveToStorage(); renderWearList();
+}
+function deleteWearEntry(id){
+  WEAR = WEAR.filter(w => w.id!==id);
+  saveToStorage(); renderWearList();
+}
+function toggleWornToday(id){
+  const t = today();
+  const idx = WEAR.findIndex(w => w.perfume_id===id && w.date===t);
+  if(idx > -1) WEAR.splice(idx,1);
+  else WEAR.push({id: nextId++, perfume_id:id, date:t});
+  saveToStorage(); render();
+}
+
 // Preference weights (per the plan): finished +3, owned +2, loved sample
 // (rated >=4 or FS-worthy) +1, plain sample 0, sold -1.
 function prefWeight(p){
@@ -866,6 +951,8 @@ function cardHTML(p){
   const flows = (FLOWS[p.status]||[]).map(f => f.fs
     ? `<button class="flow-btn${p.fs_wish?' on':''}" onclick="event.stopPropagation();toggleFS(${p.id})">${ico('heart')} FS-worthy</button>`
     : `<button class="flow-btn" onclick="event.stopPropagation();setStatus(${p.id},'${f.to}')">${f.label}</button>`).join('');
+  const wornToday = WEAR.some(w => w.perfume_id===p.id && w.date===today());
+  const wearBtn = `<button class="flow-btn${wornToday?' on':''}" onclick="event.stopPropagation();toggleWornToday(${p.id})">${ico('droplet')} Wearing today</button>`;
   const noteBits = (p.notes_reviewed && p.notes?.length)
     ? `<div>${p.notes.slice(0,6).map(id=>`<span class="pcard-note-chip">${esc(noteName(id))}</span>`).join('')}${p.notes.length>6?`<span class="pcard-note-chip">+${p.notes.length-6}</span>`:''}</div>`
     : p.notes_raw ? `<div class="pcard-notes">${esc(p.notes_raw)}</div>` : '';
@@ -881,7 +968,7 @@ function cardHTML(p){
     ${meta.length ? `<div class="pcard-meta">${meta.join(' · ')}</div>` : ''}
     ${noteBits}
     ${p.thoughts ? `<div class="pcard-thoughts">“${esc(p.thoughts)}”</div>` : ''}
-    <div class="pcard-actions">${flows}</div>
+    <div class="pcard-actions">${wearBtn}${flows}</div>
   </div>`;
 }
 
@@ -1228,7 +1315,7 @@ async function importCSV(){
 
 // ---- EXPORT ----
 function exportJSON(){
-  const blob = new Blob([JSON.stringify({perfumes:P, note_map:NOTE_MAP, settings:SETTINGS, exported: new Date().toISOString()}, null, 2)], {type:'application/json'});
+  const blob = new Blob([JSON.stringify({perfumes:P, note_map:NOTE_MAP, wear_log:WEAR, settings:SETTINGS, exported: new Date().toISOString()}, null, 2)], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `perfume-tracker-export-${today()}.json`;
@@ -1299,22 +1386,22 @@ function authGuest(){
   _currentUser = {id:'guest', email:''};
   try{
     const raw = localStorage.getItem('pt-guest-data');
-    if(raw){ const d = JSON.parse(raw); P = d.perfumes||[]; NOTE_MAP = d.note_map||{}; SETTINGS = d.settings||{}; }
+    if(raw){ const d = JSON.parse(raw); P = d.perfumes||[]; NOTE_MAP = d.note_map||{}; WEAR = d.wear_log||[]; SETTINGS = d.settings||{}; }
   }catch(e){}
   normalizeNoteMap();
-  nextId = Math.max(0, ...P.map(p=>p.id)) + 1;
+  nextId = Math.max(0, ...P.map(p=>p.id), ...WEAR.map(w=>w.id)) + 1;
   if(SETTINGS.theme) setTheme(SETTINGS.theme);
   showApp();
 }
 async function _doSave(){
   if(!_currentUser) return;
   if(_guestMode){
-    try{ localStorage.setItem('pt-guest-data', JSON.stringify({perfumes:P, note_map:NOTE_MAP, settings:SETTINGS})); }catch(e){}
+    try{ localStorage.setItem('pt-guest-data', JSON.stringify({perfumes:P, note_map:NOTE_MAP, wear_log:WEAR, settings:SETTINGS})); }catch(e){}
     return;
   }
   try{
     const {error} = await sb.from('perfume_data').upsert(
-      {user_id:_currentUser.id, perfumes:P, note_map:NOTE_MAP, settings:SETTINGS, updated_at:new Date().toISOString()},
+      {user_id:_currentUser.id, perfumes:P, note_map:NOTE_MAP, wear_log:WEAR, settings:SETTINGS, updated_at:new Date().toISOString()},
       {onConflict:'user_id'});
     if(error) console.error('save error', error);
   }catch(e){ console.error('save error', e); }
@@ -1327,11 +1414,12 @@ async function loadUserData(user){
     if(data){
       P = data.perfumes||[];
       NOTE_MAP = data.note_map||{};
+      WEAR = data.wear_log||[];
       SETTINGS = data.settings||{};
       if(SETTINGS.theme) setTheme(SETTINGS.theme);
     }
     normalizeNoteMap();
-    nextId = Math.max(0, ...P.map(p=>p.id)) + 1;
+    nextId = Math.max(0, ...P.map(p=>p.id), ...WEAR.map(w=>w.id)) + 1;
   }catch(e){ console.error('loadUserData error:', e); }
 }
 function normalizeNoteMap(){
