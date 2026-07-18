@@ -347,6 +347,15 @@ main{max-width:1100px;margin:0 auto;padding:1.75rem 2rem 3rem}
     <div class="field wear-date-field"><label>Date</label><input id="wear-date" type="date"></div>
     <button class="btn btn-accent" onclick="logWear()">Log it</button>
   </div>
+  <div class="sec-title">Wear frequency</div>
+  <div class="chart-controls">
+    <div class="lvl-toggle">
+      <button class="lvl-btn active" id="freq-lvl-month" onclick="setFreqLevel('month')">By month</button>
+      <button class="lvl-btn" id="freq-lvl-year" onclick="setFreqLevel('year')">By year</button>
+    </div>
+    <select id="freq-period" onchange="renderFreqChart()"></select>
+  </div>
+  <div class="bar-chart" id="freq-chart"></div>
   <div class="sec-title">Wear history</div>
   <div id="wear-list"></div>
 </div>
@@ -761,6 +770,8 @@ function renderWearScreen(){
   document.getElementById('wear-picker').style.display = 'none';
   document.getElementById('wear-date').value = today();
   renderWearList();
+  populateFreqPeriods();
+  renderFreqChart();
 }
 function onWearSearchInput(){
   _wearSelectedId = null; // typing invalidates a prior pick until they choose again
@@ -810,10 +821,12 @@ function logWear(){
   _wearSelectedId = null;
   document.getElementById('wear-search').value = '';
   saveToStorage(); renderWearList();
+  populateFreqPeriods(); renderFreqChart();
 }
 function deleteWearEntry(id){
   WEAR = WEAR.filter(w => w.id!==id);
   saveToStorage(); renderWearList();
+  populateFreqPeriods(); renderFreqChart();
 }
 function toggleWornToday(id){
   const t = today();
@@ -828,6 +841,49 @@ function toggleWornToday(id){
     WEAR.push({id: nextId++, perfume_id:id, date:t});
   }
   saveToStorage(); render();
+}
+let _freqLevel = 'month';
+function periodKey(date, level){ return level==='year' ? date.slice(0,4) : date.slice(0,7); }
+function fmtPeriodLabel(key, level){
+  if(level==='year') return key;
+  const [y,m] = key.split('-');
+  return `${['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][+m-1]} ${y}`;
+}
+function setFreqLevel(l){
+  _freqLevel = l;
+  document.getElementById('freq-lvl-month').classList.toggle('active', l==='month');
+  document.getElementById('freq-lvl-year').classList.toggle('active', l==='year');
+  populateFreqPeriods();
+  renderFreqChart();
+}
+function populateFreqPeriods(){
+  const sel = document.getElementById('freq-period');
+  const prev = sel.value;
+  const keys = [...new Set(WEAR.map(w => periodKey(w.date, _freqLevel)))].sort().reverse();
+  sel.innerHTML = keys.length
+    ? keys.map(k => `<option value="${k}">${fmtPeriodLabel(k, _freqLevel)}</option>`).join('')
+    : `<option value="">No wear history yet</option>`;
+  if(keys.includes(prev)) sel.value = prev;
+}
+function renderFreqChart(){
+  const chart = document.getElementById('freq-chart');
+  const period = document.getElementById('freq-period').value;
+  if(!period){ chart.innerHTML = '<div class="chart-empty">Log a few wears above and this fills right up.</div>'; return; }
+  const counts = {};
+  WEAR.forEach(w => {
+    if(periodKey(w.date, _freqLevel) !== period) return;
+    counts[w.perfume_id] = (counts[w.perfume_id]||0) + 1;
+  });
+  const rows = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+  if(!rows.length){ chart.innerHTML = '<div class="chart-empty">No wears logged for this period.</div>'; return; }
+  const maxV = Math.max(...rows.map(([,v]) => v));
+  chart.innerHTML = rows.map(([id,v]) => {
+    const p = P.find(x => x.id===+id);
+    const label = p ? p.name : '(deleted perfume)';
+    const names = p && p.house ? `${p.name} — ${p.house}` : label;
+    const w = v/maxV*100;
+    return `<div class="bar-row" title="${esc(names)}"><span class="bar-label">${esc(label)}</span><div class="bar-track"><div class="bar-fill" style="left:0;width:${w}%"></div></div><span class="bar-val">${v}</span></div>`;
+  }).join('');
 }
 
 // Preference weights (per the plan): finished +3, owned +2, loved sample

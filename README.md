@@ -78,6 +78,7 @@ Phase 1 (done): auth, CRUD, status tabs + one-tap status changes, search, star r
 Phase 2 (done): canonical note vocabulary (~170 notes, 11 families) + alias map, paste-parser with review chips, review queue, FS-worthy flag on samples.
 Phase 3 (done): My Notes screen — note/family frequency charts (pure CSS bars), preference-score view (finished ×3, owned ×2, loved samples ×1, sold −1), live scent-profile line.
 Phase 4: filters, price-per-ml sort, polish.
-Phase 5 (done): daily wear log — one-tap "Wearing today" toggle on each card, a Wear Log screen for the full history (grouped by date, with past-date entry and delete), synced like everything else. Data collection only for now; frequency tables (most-worn, by season/day-night) are future work once there's enough logged.
+Phase 5 (done): daily wear log — one-tap "Wearing today" toggle on each card, a Wear Log screen for the full history (grouped by date, with past-date entry and delete), synced like everything else.
+Phase 6 (done): wear frequency tables — a By month / By year chart on the Wear Log screen ranking perfumes by wear count for a selected period, same CSS bar-chart style as My Notes.
 
 See `CLAUDE.md` for the full plan.

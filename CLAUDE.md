@@ -70,7 +70,9 @@ Follow the dinner planner's pattern: one row per user in a `perfume_data` table 
 
 ### Wear log
 
-A flat, append-only log of daily wear, separate from `history` (which tracks lifecycle status changes, not day-to-day wear): `{id, perfume_id, date}`. One tap ("Wearing today") on any card logs today's date and toggles off again on a second tap; a dedicated Wear Log screen lists the full history grouped by date and lets you log a specific past date. This is data-collection only for now — no frequency analysis yet. The flat one-row-per-wear-per-day shape is deliberately simple so a future frequency breakdown (most-worn perfumes, by season/day-night, alongside the existing preference-score charts) is just a group-and-count away.
+A flat, append-only log of daily wear, separate from `history` (which tracks lifecycle status changes, not day-to-day wear): `{id, perfume_id, date}`. One tap ("Wearing today") on any card logs today's date; removing an already-logged entry requires confirmation so a second tap can't silently cancel it out. A dedicated Wear Log screen lists the full history grouped by date and lets you log a specific past date.
+
+The Wear Log screen also has a **Wear frequency** chart: a By month / By year toggle plus a period dropdown (populated from whatever periods actually have logged wears, newest first), rendered as the same CSS bar chart used on My Notes — ranked wear counts per perfume for the selected period. It reuses the flat `{id, perfume_id, date}` shape directly (group by `date.slice(0,7)` or `date.slice(0,4)`, count by `perfume_id`) with no extra derived state to keep in sync.
 
 ### Canonical note vocabulary
 
