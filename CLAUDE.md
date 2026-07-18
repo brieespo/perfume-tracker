@@ -72,7 +72,7 @@ Follow the dinner planner's pattern: one row per user in a `perfume_data` table 
 
 A flat, append-only log of daily wear, separate from `history` (which tracks lifecycle status changes, not day-to-day wear): `{id, perfume_id, date}`. One tap ("Wearing today") on any card logs today's date; removing an already-logged entry requires confirmation so a second tap can't silently cancel it out. A dedicated Wear Log screen lists the full history grouped by date and lets you log a specific past date.
 
-The Wear Log screen also has a **Wear frequency** chart: a By month / By year toggle plus a period dropdown (populated from whatever periods actually have logged wears, newest first), rendered as the same CSS bar chart used on My Notes — ranked wear counts per perfume for the selected period. It reuses the flat `{id, perfume_id, date}` shape directly (group by `date.slice(0,7)` or `date.slice(0,4)`, count by `perfume_id`) with no extra derived state to keep in sync.
+The Trends screen's **Wear Frequency** tab charts this log: a By month / By year toggle plus a period dropdown (populated from whatever periods actually have logged wears, newest first), rendered as the same CSS bar chart used on the Notes tab — ranked wear counts per perfume for the selected period. It reuses the flat `{id, perfume_id, date}` shape directly (group by `date.slice(0,7)` or `date.slice(0,4)`, count by `perfume_id`) with no extra derived state to keep in sync. Deliberately kept on the Trends screen rather than the Wear Log screen itself — logging a wear and analyzing wear history are different jobs, and keeping them apart is what let a "Wear frequency" section be added to Trends without crowding the log.
 
 ### Canonical note vocabulary
 
@@ -124,9 +124,18 @@ A **review queue** screen lists perfumes with `notes_reviewed: false` so importe
 
 No LLM calls — the app is a static site and can't hold API keys. The alias map + review UI achieves the same end. (Stretch idea, not Phase 1–3: a Supabase Edge Function proxying an LLM for note parsing.)
 
-### 3. Note charts (Phase 3)
+### 3. Trends screen (Phase 3)
 
-A "My Notes" screen with a CSS horizontal bar chart of note frequency, with a **dropdown selecting the view**:
+The **Trends** nav tab is where the app tells you things about your collection instead of just holding it — this is the feature set that separates it from being a plain log/tracker, and it's built to grow: a tab strip at the top of the screen (same pill style as the status tabs) switches between trend views, so a new stat or chart is just another tab, not a redesign. It ships with two tabs:
+
+- **Notes** — the note-frequency chart described below, plus the scent profile line.
+- **Wear Frequency** — the by-month/by-year wear-count chart described under [Wear log](#wear-log) above.
+
+More views (seasons, day-of-week, cost-per-wear, etc.) can be added as additional tabs later.
+
+#### Notes tab
+
+A CSS horizontal bar chart of note frequency, with a **dropdown selecting the view**:
 
 - **Owned + Finished** (default — this is the "what I actually love" view)
 - Owned
@@ -141,7 +150,7 @@ Secondary chart on the same screen: the same data rolled up by **note family** (
 
 ### 4. Scent profile line (Phase 3)
 
-A dynamically generated one-liner at the top of the My Notes screen — "This is what you look for in a perfume." Rule-based, not ML:
+A dynamically generated one-liner at the top of the Trends screen's Notes tab — "This is what you look for in a perfume." Rule-based, not ML:
 
 1. Compute family-level preference scores (from the Preference score view).
 2. Take the top 2 families, plus the top individual note.
