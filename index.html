@@ -839,7 +839,7 @@ function logWear(){
   const date = document.getElementById('wear-date').value || today();
   if(!perfumeId){ alert('Search for and pick a perfume first.'); return; }
   if(WEAR.some(w => w.perfume_id===perfumeId && w.date===date)){ alert('Already logged for that date.'); return; }
-  WEAR.push({id: nextId++, perfume_id: perfumeId, date});
+  WEAR.push({id: nextId++, perfume_id: +perfumeId, date});
   _wearSelectedId = null;
   document.getElementById('wear-search').value = '';
   saveToStorage(); renderWearList();
@@ -858,7 +858,7 @@ function toggleWornToday(id){
     if(!confirm("Remove today's wear log entry for this perfume?")) return;
     WEAR.splice(idx,1);
   } else {
-    WEAR.push({id: nextId++, perfume_id:id, date:t});
+    WEAR.push({id: nextId++, perfume_id:+id, date:t});
   }
   saveToStorage(); render();
 }
@@ -1514,6 +1514,7 @@ function authGuest(){
     if(raw){ const d = JSON.parse(raw); P = d.perfumes||[]; NOTE_MAP = d.note_map||{}; WEAR = d.wear_log||[]; SETTINGS = d.settings||{}; }
   }catch(e){}
   normalizeNoteMap();
+  normalizeWearLog();
   nextId = Math.max(0, ...P.map(p=>p.id), ...WEAR.map(w=>w.id)) + 1;
   if(SETTINGS.theme) setTheme(SETTINGS.theme);
   showApp();
@@ -1532,11 +1533,27 @@ async function _doSave(){
     return;
   }
   try{
+    const {data:fresh, error:rErr} = await sb.from('perfume_data')
+      .select('perfumes, wear_log').eq('user_id', _currentUser.id).maybeSingle();
+    if(rErr){ console.error('pre-save re-read failed', rErr); showSaveError("Couldn't save: "+rErr.message); return; }
+    let merged = false;
+    if(fresh){
+      const w = mergeShared(WEAR, Array.isArray(fresh.wear_log) ? fresh.wear_log : [], _baseWearIds);
+      const p = mergeShared(P, Array.isArray(fresh.perfumes) ? fresh.perfumes : [], _basePerfumeIds);
+      WEAR = w.list; P = p.list;
+      merged = w.changed || p.changed;
+      // Folded-in rows may carry ids at or above our counter, and the agenda
+      // writes perfume_id as whatever the onclick handed it.
+      if(merged) nextId = Math.max(nextId, ...P.map(x=>x.id+1), ...WEAR.map(x=>x.id+1));
+      coerceWearIds(WEAR);
+    }
     const {error} = await sb.from('perfume_data').upsert(
       {user_id:_currentUser.id, perfumes:P, note_map:NOTE_MAP, wear_log:WEAR, settings:SETTINGS, updated_at:new Date().toISOString()},
       {onConflict:'user_id'});
-    if(error){ console.error('save error', error); showSaveError("Couldn't save: "+error.message); }
-    else clearSaveError();
+    if(error){ console.error('save error', error); showSaveError("Couldn't save: "+error.message); return; }
+    clearSaveError();
+    snapshotShared();
+    if(merged) render();
   }catch(e){ console.error('save error', e); showSaveError("Couldn't save — check your connection."); }
 }
 function saveToStorage(){ clearTimeout(_saveTimer); _saveTimer = setTimeout(_doSave, 600); }
@@ -1552,8 +1569,56 @@ async function loadUserData(user){
       if(SETTINGS.theme) setTheme(SETTINGS.theme);
     }
     normalizeNoteMap();
+    normalizeWearLog();
     nextId = Math.max(0, ...P.map(p=>p.id), ...WEAR.map(w=>w.id)) + 1;
+    snapshotShared();
   }catch(e){ console.error('loadUserData error:', e); }
+}
+/* The agenda app's perfume tile is a second surface onto this same row: it
+   writes `wear_log` and, for a write-in, `perfumes`. This app saves the whole
+   row from its in-memory copy, so a tab left open here used to carry a stale
+   array back up and silently delete whatever had been logged there meanwhile.
+
+   Fix is the rule the agenda already follows — re-read immediately before
+   writing — plus a three-way merge against the state as it stood at load, which
+   is what tells "the other app added this" apart from "I deleted this":
+
+     on the server, not in the baseline, not in memory  -> their addition, keep it
+     in the baseline, gone from the server, still in memory -> their deletion, drop it
+     in memory and on the server                        -> ours wins (our edits)
+
+   Baselines are ids only; the arrays themselves are never copied. */
+let _baseWearIds = new Set(), _basePerfumeIds = new Set();
+function snapshotShared(){
+  _baseWearIds = new Set(WEAR.map(w => w.id));
+  _basePerfumeIds = new Set(P.map(p => p.id));
+}
+function mergeShared(local, remote, base){
+  const remoteIds = new Set(remote.map(x => x.id));
+  const localIds = new Set(local.map(x => x.id));
+  const added = remote.filter(x => !base.has(x.id) && !localIds.has(x.id));
+  const kept = local.filter(x => !(base.has(x.id) && !remoteIds.has(x.id)));
+  return {list: kept.concat(added), changed: added.length > 0 || kept.length !== local.length};
+}
+// Wear entries reference perfumes by id, and the lookup is a strict ===.
+// Entries written outside the app (hand-edited jsonb, a restore) have arrived
+// with string perfume_ids, which then render as "(deleted perfume)" in the log
+// and the frequency chart even though the perfume is sitting right there.
+// Coerce on load so the repair is written back once and stays fixed.
+function coerceWearIds(list){
+  let changed = false;
+  (list || []).forEach(w => {
+    ['id','perfume_id'].forEach(k => {
+      if(typeof w[k] !== 'string') return;
+      const n = +w[k];
+      if(Number.isFinite(n)){ w[k] = n; changed = true; }
+    });
+  });
+  return changed;
+}
+function normalizeWearLog(){
+  if(!Array.isArray(WEAR)){ WEAR = []; return; }
+  if(coerceWearIds(WEAR)) saveToStorage();
 }
 function normalizeNoteMap(){
   if(!NOTE_MAP || typeof NOTE_MAP!=='object') NOTE_MAP = {};
